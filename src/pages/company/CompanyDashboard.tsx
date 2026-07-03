@@ -1,53 +1,70 @@
-import { useState, useEffect, useCallback } from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import BusinessIcon from '@mui/icons-material/Business';
-import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import StarIcon from '@mui/icons-material/Star';
-import PeopleIcon from '@mui/icons-material/People';
-import WorkIcon from '@mui/icons-material/Work';
+import { useState, useEffect, useCallback } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import BusinessIcon from "@mui/icons-material/Business";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import StarIcon from "@mui/icons-material/Star";
+import PeopleIcon from "@mui/icons-material/People";
+import WorkIcon from "@mui/icons-material/Work";
 import {
-  Alert, Avatar, Box, Button, Card, CardContent, Chip, CircularProgress,
-  Dialog, DialogContent, DialogTitle, Divider, Grid, IconButton,
-  Stack, TextField, Typography
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-import { api } from '../../services/api';
+import { api } from "../../services/api";
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  essencial: { label: 'Essencial', color: '#7c4dff' },
-  pro: { label: 'Pro', color: '#00d3b0' },
-  business: { label: 'Business', color: '#ffc107' },
-  enterprise: { label: 'Enterprise', color: '#ff5d73' }
+  essencial: { label: "Essencial", color: "#7c4dff" },
+  pro: { label: "Pro", color: "#00d3b0" },
+  business: { label: "Business", color: "#ffc107" },
+  enterprise: { label: "Enterprise", color: "#ff5d73" },
 };
 
 export function CompanyDashboard() {
   const navigate = useNavigate();
   const [company, setCompany] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [seats, setSeats] = useState<any[]>([]);
   const [billing, setBilling] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'overview' | 'seats' | 'billing'>('overview');
+  const [tab, setTab] = useState<"overview" | "seats" | "billing">("overview");
 
   // Add seat dialog
   const [addSeatOpen, setAddSeatOpen] = useState(false);
-  const [seatName, setSeatName] = useState('');
-  const [seatEmail, setSeatEmail] = useState('');
-  const [seatPassword, setSeatPassword] = useState('');
-  const [seatError, setSeatError] = useState('');
+  const [seatName, setSeatName] = useState("");
+  const [seatEmail, setSeatEmail] = useState("");
+  const [seatPassword, setSeatPassword] = useState("");
+  const [seatError, setSeatError] = useState("");
   const [seatLoading, setSeatLoading] = useState(false);
-  const [seatSuccess, setSeatSuccess] = useState('');
+  const [seatSuccess, setSeatSuccess] = useState("");
 
   const load = useCallback(async () => {
     try {
-      const [c, s, b] = await Promise.all([
+      const [c, p, s, b] = await Promise.all([
         api.getMyCompany(),
+        api.getMyRecruiterProfile(),
         api.getSeats(),
-        api.getBillingRecords()
+        api.getBillingRecords(),
       ]);
       setCompany(c);
+      setProfile(p);
       setSeats(s);
       setBilling(b);
     } catch {
@@ -57,27 +74,39 @@ export function CompanyDashboard() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const isOwner = profile?.companyRole === "owner";
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleAddSeat = async () => {
     if (!seatName || !seatEmail || seatPassword.length < 6) {
-      setSeatError('Preencha todos os campos (senha mínimo 6 caracteres).');
+      setSeatError("Preencha todos os campos (senha mínimo 6 caracteres).");
       return;
     }
-    setSeatError('');
+    setSeatError("");
     setSeatLoading(true);
     try {
-      const res = await api.addSeat({ name: seatName, email: seatEmail, password: seatPassword });
+      const res = await api.addSeat({
+        name: seatName,
+        email: seatEmail,
+        password: seatPassword,
+      });
       const msg = res.chargedExtra
-        ? 'Gestor adicionado! Uma cobrança adicional foi realizada pelo seat extra.'
-        : 'Gestor adicionado com sucesso!';
+        ? "Gestor adicionado! Uma cobrança adicional foi realizada pelo seat extra."
+        : "Gestor adicionado com sucesso!";
       setSeatSuccess(msg);
-      setSeatName('');
-      setSeatEmail('');
-      setSeatPassword('');
+      setSeatName("");
+      setSeatEmail("");
+      setSeatPassword("");
       await load();
     } catch (err: any) {
-      setSeatError(err?.response?.data?.message ?? 'Erro ao adicionar gestor.');
+      setSeatError(err?.response?.data?.message ?? "Erro ao adicionar gestor.");
     } finally {
       setSeatLoading(false);
     }
@@ -88,19 +117,23 @@ export function CompanyDashboard() {
       await api.removeSeat(profileId);
       await load();
     } catch (err: any) {
-      alert(err?.response?.data?.message ?? 'Erro ao remover gestor.');
+      alert(err?.response?.data?.message ?? "Erro ao remover gestor.");
     }
   };
 
   const currentUser = api.getCurrentUser();
 
-  if (currentUser?.role !== 'recruiter') {
+  if (currentUser?.role !== "recruiter") {
     return (
       <Box maxWidth={560} mx="auto" mt={6} textAlign="center">
-        <Card sx={{ p: 4, border: '1px solid rgba(124,77,255,0.3)' }}>
+        <Card sx={{ p: 4, border: "1px solid rgba(124,77,255,0.3)" }}>
           <CardContent>
-            <Typography variant="h5" fontWeight={900} mb={2}>Acesso restrito</Typography>
-            <Typography color="text.secondary">Esta área é exclusiva para Recrutadores.</Typography>
+            <Typography variant="h5" fontWeight={900} mb={2}>
+              Acesso restrito
+            </Typography>
+            <Typography color="text.secondary">
+              Esta área é exclusiva para Recrutadores.
+            </Typography>
           </CardContent>
         </Card>
       </Box>
@@ -109,7 +142,7 @@ export function CompanyDashboard() {
 
   if (loading) {
     return (
-      <Box display="grid" sx={{ placeItems: 'center', minHeight: '60vh' }}>
+      <Box display="grid" sx={{ placeItems: "center", minHeight: "60vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -118,11 +151,22 @@ export function CompanyDashboard() {
   if (!company) {
     return (
       <Box maxWidth={560} mx="auto" mt={6} textAlign="center">
-        <Card sx={{ p: 4, border: '1px solid rgba(124,77,255,0.3)' }}>
+        <Card sx={{ p: 4, border: "1px solid rgba(124,77,255,0.3)" }}>
           <CardContent>
-            <Typography variant="h5" fontWeight={900} mb={2}>Empresa não encontrada</Typography>
-            <Typography color="text.secondary" mb={3}>Você ainda não tem uma empresa cadastrada.</Typography>
-            <Button variant="contained" onClick={() => navigate('/register')} sx={{ background: 'linear-gradient(135deg,#7c4dff,#00d3b0)', fontWeight: 800 }}>
+            <Typography variant="h5" fontWeight={900} mb={2}>
+              Empresa não encontrada
+            </Typography>
+            <Typography color="text.secondary" mb={3}>
+              Você ainda não tem uma empresa cadastrada.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/register")}
+              sx={{
+                background: "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                fontWeight: 800,
+              }}
+            >
               Cadastrar empresa
             </Button>
           </CardContent>
@@ -131,91 +175,136 @@ export function CompanyDashboard() {
     );
   }
 
-  const planInfo = PLAN_LABELS[company.plan] ?? { label: company.plan ?? 'Sem plano', color: '#666' };
+  const planInfo = PLAN_LABELS[company.plan] ?? {
+    label: company.plan ?? "Sem plano",
+    color: "#666",
+  };
   const totalSeats = company.seatsAllowed + company.extraSeats;
-  const activeSeats = seats.filter(s => s.isActive).length;
-  const jobsLeft = Math.max(0, company.jobsPerMonth + company.extraJobs - company.jobsPostedThisMonth);
+  const activeSeats = seats.filter((s) => s.isActive).length;
+  const jobsLeft = Math.max(
+    0,
+    company.jobsPerMonth + company.extraJobs - company.jobsPostedThisMonth,
+  );
 
   const tabStyle = (t: typeof tab) => ({
     py: 1,
     px: 2.5,
     borderRadius: 2,
     fontWeight: tab === t ? 800 : 500,
-    bgcolor: tab === t ? 'rgba(124,77,255,0.15)' : 'transparent',
-    color: tab === t ? '#7c4dff' : 'text.secondary',
-    cursor: 'pointer',
-    transition: 'all 0.15s'
+    bgcolor: tab === t ? "rgba(124,77,255,0.15)" : "transparent",
+    color: tab === t ? "#7c4dff" : "text.secondary",
+    cursor: "pointer",
+    transition: "all 0.15s",
   });
 
   return (
     <Box maxWidth={960} mx="auto">
       {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={3}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        mb={3}
+      >
         <Box>
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Box sx={{ width: 44, height: 44, borderRadius: 2, background: 'linear-gradient(135deg,#7c4dff,#5b2de8)', display: 'grid', placeItems: 'center' }}>
-              <BusinessIcon sx={{ color: '#fff' }} />
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: 2,
+                background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <BusinessIcon sx={{ color: "#fff" }} />
             </Box>
             <Box>
-              <Typography variant="h5" fontWeight={900}>{company.name}</Typography>
+              <Typography variant="h5" fontWeight={900}>
+                {company.name}
+              </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Chip
                   label={planInfo.label}
                   size="small"
-                  sx={{ bgcolor: `${planInfo.color}22`, color: planInfo.color, fontWeight: 800, fontSize: '0.7rem' }}
+                  sx={{
+                    bgcolor: `${planInfo.color}22`,
+                    color: planInfo.color,
+                    fontWeight: 800,
+                    fontSize: "0.7rem",
+                  }}
                 />
-                {company.industry && <Typography color="text.secondary" variant="body2">{company.industry}</Typography>}
+                {company.industry && (
+                  <Typography color="text.secondary" variant="body2">
+                    {company.industry}
+                  </Typography>
+                )}
               </Stack>
             </Box>
           </Stack>
         </Box>
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<StarIcon />}
-          onClick={() => navigate('/plans')}
-          sx={{ borderColor: '#7c4dff', color: '#7c4dff', fontWeight: 700 }}
-        >
-          Upgrade de plano
-        </Button>
+        {isOwner && (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<StarIcon />}
+            onClick={() => navigate("/plans")}
+            sx={{ borderColor: "#7c4dff", color: "#7c4dff", fontWeight: 700 }}
+          >
+            Upgrade de plano
+          </Button>
+        )}
       </Stack>
 
       {/* Quick stats */}
       <Grid container spacing={2} mb={3}>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.15)' }}>
+          <Card sx={{ border: "1px solid rgba(124,77,255,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <PeopleIcon sx={{ color: '#7c4dff', fontSize: 28 }} />
+                <PeopleIcon sx={{ color: "#7c4dff", fontSize: 28 }} />
                 <Box>
-                  <Typography variant="h5" fontWeight={900}>{activeSeats} / {totalSeats === 9999 ? '∞' : totalSeats}</Typography>
-                  <Typography color="text.secondary" variant="body2">Gestores de RH</Typography>
+                  <Typography variant="h5" fontWeight={900}>
+                    {activeSeats} / {totalSeats === 9999 ? "∞" : totalSeats}
+                  </Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Gestores de RH
+                  </Typography>
                 </Box>
               </Stack>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ border: '1px solid rgba(0,211,176,0.15)' }}>
+          <Card sx={{ border: "1px solid rgba(0,211,176,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <WorkIcon sx={{ color: '#00d3b0', fontSize: 28 }} />
+                <WorkIcon sx={{ color: "#00d3b0", fontSize: 28 }} />
                 <Box>
-                  <Typography variant="h5" fontWeight={900}>{jobsLeft === 9999 ? '∞' : jobsLeft} restantes</Typography>
-                  <Typography color="text.secondary" variant="body2">Vagas disponíveis este mês</Typography>
+                  <Typography variant="h5" fontWeight={900}>
+                    {jobsLeft === 9999 ? "∞" : jobsLeft} restantes
+                  </Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Vagas disponíveis este mês
+                  </Typography>
                 </Box>
               </Stack>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ border: '1px solid rgba(255,193,7,0.15)' }}>
+          <Card sx={{ border: "1px solid rgba(255,193,7,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <ReceiptIcon sx={{ color: '#ffc107', fontSize: 28 }} />
+                <ReceiptIcon sx={{ color: "#ffc107", fontSize: 28 }} />
                 <Box>
-                  <Typography variant="h5" fontWeight={900}>{billing.length}</Typography>
-                  <Typography color="text.secondary" variant="body2">Cobranças realizadas</Typography>
+                  <Typography variant="h5" fontWeight={900}>
+                    {billing.length}
+                  </Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Cobranças realizadas
+                  </Typography>
                 </Box>
               </Stack>
             </CardContent>
@@ -225,43 +314,78 @@ export function CompanyDashboard() {
 
       {/* Tabs */}
       <Stack direction="row" spacing={1} mb={3}>
-        <Box sx={tabStyle('overview')} onClick={() => setTab('overview')}>Visão geral</Box>
-        <Box sx={tabStyle('seats')} onClick={() => setTab('seats')}>Gestores de RH</Box>
-        <Box sx={tabStyle('billing')} onClick={() => setTab('billing')}>Cobranças</Box>
+        <Box sx={tabStyle("overview")} onClick={() => setTab("overview")}>
+          Visão geral
+        </Box>
+        <Box sx={tabStyle("seats")} onClick={() => setTab("seats")}>
+          Gestores de RH
+        </Box>
+        <Box sx={tabStyle("billing")} onClick={() => setTab("billing")}>
+          Cobranças
+        </Box>
       </Stack>
 
       {/* OVERVIEW */}
-      {tab === 'overview' && (
+      {tab === "overview" && (
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ border: '1px solid rgba(124,77,255,0.15)', height: '100%' }}>
+            <Card
+              sx={{ border: "1px solid rgba(124,77,255,0.15)", height: "100%" }}
+            >
               <CardContent>
-                <Typography variant="subtitle1" fontWeight={800} mb={2}>Plano atual</Typography>
+                <Typography variant="subtitle1" fontWeight={800} mb={2}>
+                  Plano atual
+                </Typography>
                 <Stack spacing={1.5}>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography color="text.secondary">Plano</Typography>
-                    <Chip label={planInfo.label} size="small" sx={{ bgcolor: `${planInfo.color}22`, color: planInfo.color, fontWeight: 800 }} />
+                    <Chip
+                      label={planInfo.label}
+                      size="small"
+                      sx={{
+                        bgcolor: `${planInfo.color}22`,
+                        color: planInfo.color,
+                        fontWeight: 800,
+                      }}
+                    />
                   </Stack>
                   <Stack direction="row" justifyContent="space-between">
-                    <Typography color="text.secondary">Seats incluídos</Typography>
-                    <Typography fontWeight={700}>{company.seatsAllowed === 9999 ? 'Ilimitado' : company.seatsAllowed}</Typography>
+                    <Typography color="text.secondary">
+                      Seats incluídos
+                    </Typography>
+                    <Typography fontWeight={700}>
+                      {company.seatsAllowed === 9999
+                        ? "Ilimitado"
+                        : company.seatsAllowed}
+                    </Typography>
                   </Stack>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography color="text.secondary">Vagas/mês</Typography>
-                    <Typography fontWeight={700}>{company.jobsPerMonth === 9999 ? 'Ilimitado' : company.jobsPerMonth}</Typography>
+                    <Typography fontWeight={700}>
+                      {company.jobsPerMonth === 9999
+                        ? "Ilimitado"
+                        : company.jobsPerMonth}
+                    </Typography>
                   </Stack>
                   {company.planExpiresAt && (
                     <Stack direction="row" justifyContent="space-between">
                       <Typography color="text.secondary">Vence em</Typography>
-                      <Typography fontWeight={700}>{new Date(company.planExpiresAt).toLocaleDateString('pt-BR')}</Typography>
+                      <Typography fontWeight={700}>
+                        {new Date(company.planExpiresAt).toLocaleDateString(
+                          "pt-BR",
+                        )}
+                      </Typography>
                     </Stack>
                   )}
                   <Divider />
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/plans')}
-                    sx={{ background: 'linear-gradient(135deg,#7c4dff,#5b2de8)', fontWeight: 800 }}
+                    onClick={() => navigate("/plans")}
+                    sx={{
+                      background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                      fontWeight: 800,
+                    }}
                   >
                     Fazer upgrade
                   </Button>
@@ -270,33 +394,93 @@ export function CompanyDashboard() {
             </Card>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ border: '1px solid rgba(0,211,176,0.15)', height: '100%' }}>
+            <Card
+              sx={{ border: "1px solid rgba(0,211,176,0.15)", height: "100%" }}
+            >
               <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="subtitle1" fontWeight={800}>Gestores de RH</Typography>
-                  <Button size="small" startIcon={<AddIcon />} onClick={() => { setTab('seats'); setAddSeatOpen(true); }} sx={{ color: '#00d3b0', fontWeight: 700 }}>
-                    Adicionar
-                  </Button>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Typography variant="subtitle1" fontWeight={800}>
+                    Gestores de RH
+                  </Typography>
+                  {isOwner && (
+                    <Button
+                      size="small"
+                      startIcon={<AddIcon />}
+                      onClick={() => {
+                        setTab("seats");
+                        setAddSeatOpen(true);
+                      }}
+                      sx={{ color: "#00d3b0", fontWeight: 700 }}
+                    >
+                      Adicionar
+                    </Button>
+                  )}
                 </Stack>
                 <Stack spacing={1}>
-                  {seats.filter(s => s.isActive).slice(0, 4).map((s: any) => (
-                    <Stack key={s.id} direction="row" spacing={1.5} alignItems="center">
-                      <Avatar sx={{ width: 32, height: 32, background: 'linear-gradient(135deg,#7c4dff,#00d3b0)', fontSize: '0.8rem', fontWeight: 900 }}>
-                        {s.user?.name?.[0]}
-                      </Avatar>
-                      <Box flex={1}>
-                        <Typography variant="body2" fontWeight={700} lineHeight={1.2}>{s.user?.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">{s.user?.email}</Typography>
-                      </Box>
-                      <Chip
-                        label={s.companyRole === 'owner' ? 'Proprietário' : 'Gestor'}
-                        size="small"
-                        sx={{ fontSize: '0.65rem', bgcolor: s.companyRole === 'owner' ? 'rgba(124,77,255,0.15)' : 'rgba(255,255,255,0.05)', color: s.companyRole === 'owner' ? '#7c4dff' : 'text.secondary' }}
-                      />
-                    </Stack>
-                  ))}
-                  {seats.filter(s => s.isActive).length === 0 && (
-                    <Typography color="text.secondary" variant="body2">Nenhum gestor cadastrado ainda.</Typography>
+                  {seats
+                    .filter((s) => s.isActive)
+                    .slice(0, 4)
+                    .map((s: any) => (
+                      <Stack
+                        key={s.id}
+                        direction="row"
+                        spacing={1.5}
+                        alignItems="center"
+                      >
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            background:
+                              "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                            fontSize: "0.8rem",
+                            fontWeight: 900,
+                          }}
+                        >
+                          {s.user?.name?.[0]}
+                        </Avatar>
+                        <Box flex={1}>
+                          <Typography
+                            variant="body2"
+                            fontWeight={700}
+                            lineHeight={1.2}
+                          >
+                            {s.user?.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {s.user?.email}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          label={
+                            s.companyRole === "owner"
+                              ? "Proprietário"
+                              : "Gestor"
+                          }
+                          size="small"
+                          sx={{
+                            fontSize: "0.65rem",
+                            bgcolor:
+                              s.companyRole === "owner"
+                                ? "rgba(124,77,255,0.15)"
+                                : "rgba(255,255,255,0.05)",
+                            color:
+                              s.companyRole === "owner"
+                                ? "#7c4dff"
+                                : "text.secondary",
+                          }}
+                        />
+                      </Stack>
+                    ))}
+                  {seats.filter((s) => s.isActive).length === 0 && (
+                    <Typography color="text.secondary" variant="body2">
+                      Nenhum gestor cadastrado ainda.
+                    </Typography>
                   )}
                 </Stack>
               </CardContent>
@@ -306,86 +490,156 @@ export function CompanyDashboard() {
       )}
 
       {/* SEATS */}
-      {tab === 'seats' && (
+      {tab === "seats" && (
         <Box>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
             <Box>
-              <Typography variant="h6" fontWeight={800}>Gestores de RH</Typography>
+              <Typography variant="h6" fontWeight={800}>
+                Gestores de RH
+              </Typography>
               <Typography color="text.secondary" variant="body2">
-                {activeSeats} de {totalSeats === 9999 ? 'ilimitados' : totalSeats} seats em uso
-                {company.extraSeats > 0 && ` (${company.extraSeats} seat${company.extraSeats > 1 ? 's' : ''} extra${company.extraSeats > 1 ? 's' : ''})`}
+                {activeSeats} de{" "}
+                {totalSeats === 9999 ? "ilimitados" : totalSeats} seats em uso
+                {company.extraSeats > 0 &&
+                  ` (${company.extraSeats} seat${company.extraSeats > 1 ? "s" : ""} extra${company.extraSeats > 1 ? "s" : ""})`}
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => { setSeatSuccess(''); setSeatError(''); setAddSeatOpen(true); }}
-              sx={{ background: 'linear-gradient(135deg,#7c4dff,#5b2de8)', fontWeight: 800 }}
-            >
-              Adicionar gestor
-            </Button>
+            {isOwner && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setSeatSuccess("");
+                  setSeatError("");
+                  setAddSeatOpen(true);
+                }}
+                sx={{
+                  background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                  fontWeight: 800,
+                }}
+              >
+                Adicionar gestor
+              </Button>
+            )}
           </Stack>
+
+          {!isOwner && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Apenas o proprietário da empresa pode adicionar ou remover
+              gestores de RH.
+            </Alert>
+          )}
 
           {activeSeats >= totalSeats && totalSeats !== 9999 && (
             <Alert severity="warning" sx={{ mb: 2 }}>
-              Limite de seats atingido. Adicionar um novo gestor gerará cobrança de seat extra
-              (conforme seu plano {planInfo.label}).
+              Limite de seats atingido. Adicionar um novo gestor gerará cobrança
+              de seat extra (conforme seu plano {planInfo.label}).
             </Alert>
           )}
 
           <Stack spacing={1.5}>
-            {seats.filter(s => s.isActive).map((s: any) => (
-              <Card key={s.id} sx={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Avatar sx={{ width: 40, height: 40, background: 'linear-gradient(135deg,#7c4dff,#00d3b0)', fontWeight: 900 }}>
-                      {s.user?.name?.[0]}
-                    </Avatar>
-                    <Box flex={1}>
-                      <Typography fontWeight={700}>{s.user?.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">{s.user?.email}</Typography>
-                    </Box>
-                    <Chip
-                      label={s.companyRole === 'owner' ? 'Proprietário' : 'Gestor de RH'}
-                      size="small"
-                      sx={{ bgcolor: s.companyRole === 'owner' ? 'rgba(124,77,255,0.15)' : 'rgba(0,211,176,0.1)', color: s.companyRole === 'owner' ? '#7c4dff' : '#00d3b0', fontWeight: 700 }}
-                    />
-                    {s.companyRole !== 'owner' && (
-                      <IconButton size="small" color="error" onClick={() => handleRemoveSeat(s.id)} title="Remover gestor">
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    )}
-                  </Stack>
-                </CardContent>
-              </Card>
-            ))}
+            {seats
+              .filter((s) => s.isActive)
+              .map((s: any) => (
+                <Card
+                  key={s.id}
+                  sx={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Avatar
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          background: "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                          fontWeight: 900,
+                        }}
+                      >
+                        {s.user?.name?.[0]}
+                      </Avatar>
+                      <Box flex={1}>
+                        <Typography fontWeight={700}>{s.user?.name}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {s.user?.email}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={
+                          s.companyRole === "owner"
+                            ? "Proprietário"
+                            : "Gestor de RH"
+                        }
+                        size="small"
+                        sx={{
+                          bgcolor:
+                            s.companyRole === "owner"
+                              ? "rgba(124,77,255,0.15)"
+                              : "rgba(0,211,176,0.1)",
+                          color:
+                            s.companyRole === "owner" ? "#7c4dff" : "#00d3b0",
+                          fontWeight: 700,
+                        }}
+                      />
+                      {isOwner && s.companyRole !== "owner" && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveSeat(s.id)}
+                          title="Remover gestor"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
 
-            {seats.filter(s => s.isActive).length === 0 && (
-              <Card sx={{ border: '1px dashed rgba(255,255,255,0.1)', textAlign: 'center', py: 4 }}>
-                <Typography color="text.secondary">Nenhum gestor cadastrado. Adicione gestores de RH ao seu time.</Typography>
+            {seats.filter((s) => s.isActive).length === 0 && (
+              <Card
+                sx={{
+                  border: "1px dashed rgba(255,255,255,0.1)",
+                  textAlign: "center",
+                  py: 4,
+                }}
+              >
+                <Typography color="text.secondary">
+                  Nenhum gestor cadastrado. Adicione gestores de RH ao seu time.
+                </Typography>
               </Card>
             )}
           </Stack>
 
           {/* Add seat dialog */}
-          <Dialog open={addSeatOpen} onClose={() => setAddSeatOpen(false)} maxWidth="sm" fullWidth>
+          <Dialog
+            open={addSeatOpen}
+            onClose={() => setAddSeatOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
             <DialogTitle fontWeight={800}>Adicionar gestor de RH</DialogTitle>
             <DialogContent>
               <Stack spacing={2} pt={1}>
                 {seatSuccess && <Alert severity="success">{seatSuccess}</Alert>}
                 {seatError && <Alert severity="error">{seatError}</Alert>}
 
-                <Alert severity="info" sx={{ fontSize: '0.8rem' }}>
-                  O novo gestor receberá acesso à plataforma como recrutador desta empresa.
+                <Alert severity="info" sx={{ fontSize: "0.8rem" }}>
+                  O novo gestor receberá acesso à plataforma como recrutador
+                  desta empresa.
                   {activeSeats >= totalSeats && totalSeats !== 9999
-                    ? ' Como seu plano está cheio, uma cobrança de seat extra será realizada.'
-                    : ''}
+                    ? " Como seu plano está cheio, uma cobrança de seat extra será realizada."
+                    : ""}
                 </Alert>
 
                 <TextField
                   label="Nome completo"
                   value={seatName}
-                  onChange={e => setSeatName(e.target.value)}
+                  onChange={(e) => setSeatName(e.target.value)}
                   fullWidth
                   autoFocus
                 />
@@ -393,27 +647,40 @@ export function CompanyDashboard() {
                   label="E-mail do gestor"
                   type="email"
                   value={seatEmail}
-                  onChange={e => setSeatEmail(e.target.value)}
+                  onChange={(e) => setSeatEmail(e.target.value)}
                   fullWidth
                 />
                 <TextField
                   label="Senha inicial"
                   type="password"
                   value={seatPassword}
-                  onChange={e => setSeatPassword(e.target.value)}
+                  onChange={(e) => setSeatPassword(e.target.value)}
                   fullWidth
                   helperText="O gestor poderá alterar depois"
                 />
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end">
-                  <Button variant="outlined" color="inherit" onClick={() => setAddSeatOpen(false)}>Cancelar</Button>
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={() => setAddSeatOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
                   <Button
                     variant="contained"
                     onClick={handleAddSeat}
                     disabled={seatLoading}
-                    sx={{ background: 'linear-gradient(135deg,#7c4dff,#5b2de8)', fontWeight: 800 }}
+                    sx={{
+                      background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                      fontWeight: 800,
+                    }}
                   >
-                    {seatLoading ? <CircularProgress size={20} color="inherit" /> : 'Adicionar gestor'}
+                    {seatLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "Adicionar gestor"
+                    )}
                   </Button>
                 </Stack>
               </Stack>
@@ -423,43 +690,84 @@ export function CompanyDashboard() {
       )}
 
       {/* BILLING */}
-      {tab === 'billing' && (
+      {tab === "billing" && (
         <Box>
-          <Typography variant="h6" fontWeight={800} mb={2}>Histórico de cobranças</Typography>
+          <Typography variant="h6" fontWeight={800} mb={2}>
+            Histórico de cobranças
+          </Typography>
 
           {billing.length === 0 ? (
-            <Card sx={{ border: '1px dashed rgba(255,255,255,0.1)', textAlign: 'center', py: 4 }}>
-              <Typography color="text.secondary">Nenhuma cobrança registrada ainda.</Typography>
+            <Card
+              sx={{
+                border: "1px dashed rgba(255,255,255,0.1)",
+                textAlign: "center",
+                py: 4,
+              }}
+            >
+              <Typography color="text.secondary">
+                Nenhuma cobrança registrada ainda.
+              </Typography>
             </Card>
           ) : (
             <Stack spacing={1.5}>
               {billing.map((b: any) => (
-                <Card key={b.id} sx={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                <Card
+                  key={b.id}
+                  sx={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
                     <Stack direction="row" alignItems="center" spacing={1.5}>
-                      <Box sx={{ width: 36, height: 36, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: 'rgba(0,211,176,0.1)' }}>
-                        <ReceiptIcon sx={{ color: '#00d3b0', fontSize: 18 }} />
+                      <Box
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          bgcolor: "rgba(0,211,176,0.1)",
+                        }}
+                      >
+                        <ReceiptIcon sx={{ color: "#00d3b0", fontSize: 18 }} />
                       </Box>
                       <Box flex={1}>
-                        <Typography variant="body2" fontWeight={700}>{b.description}</Typography>
+                        <Typography variant="body2" fontWeight={700}>
+                          {b.description}
+                        </Typography>
                         <Stack direction="row" spacing={1} alignItems="center">
                           <Typography variant="caption" color="text.secondary">
-                            {new Date(b.createdAt).toLocaleDateString('pt-BR')}
+                            {new Date(b.createdAt).toLocaleDateString("pt-BR")}
                           </Typography>
                           {b.cardLast4 && (
-                            <Typography variant="caption" color="text.secondary">· Cartão •••• {b.cardLast4}</Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              · Cartão •••• {b.cardLast4}
+                            </Typography>
                           )}
                         </Stack>
                       </Box>
                       <Box textAlign="right">
                         <Typography fontWeight={900} color="#00d3b0">
-                          R$ {Number(b.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          R${" "}
+                          {Number(b.amount).toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
                         </Typography>
                         <Chip
-                          icon={<CheckIcon sx={{ fontSize: '10px !important' }} />}
-                          label={b.status === 'authorized' ? 'Aprovado' : b.status}
+                          icon={
+                            <CheckIcon sx={{ fontSize: "10px !important" }} />
+                          }
+                          label={
+                            b.status === "authorized" ? "Aprovado" : b.status
+                          }
                           size="small"
-                          sx={{ fontSize: '0.65rem', bgcolor: 'rgba(16,217,155,0.1)', color: '#10d99b', height: 18 }}
+                          sx={{
+                            fontSize: "0.65rem",
+                            bgcolor: "rgba(16,217,155,0.1)",
+                            color: "#10d99b",
+                            height: 18,
+                          }}
                         />
                       </Box>
                     </Stack>
