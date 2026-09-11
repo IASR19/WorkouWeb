@@ -92,15 +92,12 @@ export function CompanyDashboard() {
     setSeatError("");
     setSeatLoading(true);
     try {
-      const res = await api.addSeat({
+      await api.addSeat({
         name: seatName,
         email: seatEmail,
         password: seatPassword,
       });
-      const msg = res.chargedExtra
-        ? "Gestor adicionado! Uma cobrança adicional foi realizada pelo seat extra."
-        : "Gestor adicionado com sucesso!";
-      setSeatSuccess(msg);
+      setSeatSuccess("Gestor adicionado com sucesso! Seats são ilimitados, sem custo extra.");
       setSeatName("");
       setSeatEmail("");
       setSeatPassword("");
@@ -503,10 +500,9 @@ export function CompanyDashboard() {
                 Gestores de RH
               </Typography>
               <Typography color="text.secondary" variant="body2">
-                {activeSeats} de{" "}
-                {totalSeats === 9999 ? "ilimitados" : totalSeats} seats em uso
-                {company.extraSeats > 0 &&
-                  ` (${company.extraSeats} seat${company.extraSeats > 1 ? "s" : ""} extra${company.extraSeats > 1 ? "s" : ""})`}
+                {totalSeats === 9999
+                  ? `${activeSeats} gestor${activeSeats !== 1 ? "es" : ""} no time · seats ilimitados`
+                  : `${activeSeats} de ${totalSeats} seats em uso`}
               </Typography>
             </Box>
             {isOwner && (
@@ -532,13 +528,6 @@ export function CompanyDashboard() {
             <Alert severity="info" sx={{ mb: 2 }}>
               Apenas o proprietário da empresa pode adicionar ou remover
               gestores de RH.
-            </Alert>
-          )}
-
-          {activeSeats >= totalSeats && totalSeats !== 9999 && (
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              Limite de seats atingido. Adicionar um novo gestor gerará cobrança
-              de seat extra (conforme seu plano {planInfo.label}).
             </Alert>
           )}
 
@@ -630,10 +619,7 @@ export function CompanyDashboard() {
 
                 <Alert severity="info" sx={{ fontSize: "0.8rem" }}>
                   O novo gestor receberá acesso à plataforma como recrutador
-                  desta empresa.
-                  {activeSeats >= totalSeats && totalSeats !== 9999
-                    ? " Como seu plano está cheio, uma cobrança de seat extra será realizada."
-                    : ""}
+                  desta empresa. Seats são ilimitados em todos os planos, sem custo extra.
                 </Alert>
 
                 <TextField

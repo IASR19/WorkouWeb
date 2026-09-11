@@ -43,8 +43,7 @@ export function AppShell() {
   const [newMatchCount, setNewMatchCount] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("workou_token");
-    if (!token) {
+    if (!api.hasValidSession()) {
       navigate("/login");
     } else {
       setAuthorized(true);

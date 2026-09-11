@@ -18,41 +18,38 @@ import { darkTheme } from '../../theme/theme';
 type Role = 'recruiter' | 'candidate';
 type Step = 'role' | 'personal' | 'company' | 'plan' | 'payment';
 
-const PLANS = [
+// Seats são ilimitados em todos os planos — só o volume de vagas/mês muda entre eles.
+const PLANS: { id: string; label: string; price: number | null; jobs: number; extras: string[]; highlight: boolean }[] = [
   {
     id: 'essencial',
     label: 'Essencial',
     price: 299,
-    seats: 1,
     jobs: 3,
-    extras: ['1 gestor de RH', '3 vagas/mês', 'CardStack com IA', 'Suporte por e-mail'],
+    extras: ['Gestores de RH ilimitados', '3 vagas/mês', 'CardStack com IA', 'Suporte por e-mail'],
     highlight: false
   },
   {
     id: 'pro',
     label: 'Pro',
     price: 699,
-    seats: 3,
     jobs: 10,
-    extras: ['3 gestores de RH', '10 vagas/mês', 'CardStack com IA', 'Suporte prioritário', 'Relatórios de match'],
+    extras: ['Gestores de RH ilimitados', '10 vagas/mês', 'CardStack com IA', 'Suporte prioritário', 'Relatórios de match'],
     highlight: true
   },
   {
     id: 'business',
     label: 'Business',
     price: 1499,
-    seats: 10,
     jobs: 30,
-    extras: ['10 gestores de RH', '30 vagas/mês', 'CardStack com IA', 'Suporte dedicado', 'Dashboard avançado', 'API de integração'],
+    extras: ['Gestores de RH ilimitados', '30 vagas/mês', 'CardStack com IA', 'Suporte dedicado', 'Dashboard avançado', 'API de integração'],
     highlight: false
   },
   {
     id: 'enterprise',
     label: 'Enterprise',
-    price: 3999,
-    seats: -1,
+    price: null,
     jobs: -1,
-    extras: ['Gestores ilimitados', 'Vagas ilimitadas', 'CardStack com IA', 'CSM dedicado', 'SLA garantido', 'Integração ATS', 'Treinamento da equipe'],
+    extras: ['Gestores de RH ilimitados', 'Vagas ilimitadas', 'CardStack com IA', 'CSM dedicado', 'SLA garantido', 'Integração ATS', 'Treinamento da equipe'],
     highlight: false
   }
 ];
@@ -319,12 +316,18 @@ export function RegisterPage() {
                     )}
                     <CardContent sx={{ p: 2.5 }}>
                       <Typography variant="subtitle1" fontWeight={800} mb={0.5}>{p.label}</Typography>
-                      <Typography variant="h5" fontWeight={900} color={p.highlight ? '#22D3EE' : 'white'} mb={0.5}>
-                        R$ {p.price.toLocaleString('pt-BR')}
-                        <Typography component="span" variant="body2" color="text.secondary" fontWeight={400}>/mês</Typography>
-                      </Typography>
+                      {p.price === null ? (
+                        <Typography variant="h5" fontWeight={900} color="white" mb={0.5}>
+                          Sob consulta
+                        </Typography>
+                      ) : (
+                        <Typography variant="h5" fontWeight={900} color={p.highlight ? '#22D3EE' : 'white'} mb={0.5}>
+                          R$ {p.price.toLocaleString('pt-BR')}
+                          <Typography component="span" variant="body2" color="text.secondary" fontWeight={400}>/mês</Typography>
+                        </Typography>
+                      )}
                       <Typography variant="body2" color="text.secondary" mb={1.5} fontSize="0.75rem">
-                        {p.seats === -1 ? 'Seats ilimitados' : `${p.seats} seat${p.seats > 1 ? 's' : ''}`} · {p.jobs === -1 ? 'Vagas ilimitadas' : `${p.jobs} vagas/mês`}
+                        Seats ilimitados · {p.jobs === -1 ? 'Vagas ilimitadas' : `${p.jobs} vagas/mês`}
                       </Typography>
                       <Divider sx={{ mb: 1.5 }} />
                       <Stack spacing={0.5}>
@@ -347,15 +350,22 @@ export function RegisterPage() {
                   <Box>
                     <Typography fontWeight={800}>Plano selecionado: {plan.label}</Typography>
                     <Typography color="text.secondary" variant="body2">
-                      {plan.seats === -1 ? 'Ilimitado' : `${plan.seats} seat${plan.seats > 1 ? 's'  : ''}`} · {plan.jobs === -1 ? 'Vagas ilimitadas' : `${plan.jobs} vagas/mês`} · R$ {plan.price}/mês
+                      Seats ilimitados · {plan.jobs === -1 ? 'Vagas ilimitadas' : `${plan.jobs} vagas/mês`}
+                      {plan.price !== null && ` · R$ ${plan.price}/mês`}
                     </Typography>
                   </Box>
                   <Button
                     variant="contained"
-                    onClick={() => setStep('payment')}
+                    onClick={() => {
+                      if (plan.price === null) {
+                        window.location.href = 'mailto:contato@workou.com.br?subject=Interesse%20no%20plano%20Enterprise';
+                        return;
+                      }
+                      setStep('payment');
+                    }}
                     sx={{ background: 'linear-gradient(135deg, #5B3DF5, #4C2FE0)', fontWeight: 800, px: 3 }}
                   >
-                    Ir para pagamento →
+                    {plan.price === null ? 'Falar com vendas' : 'Ir para pagamento →'}
                   </Button>
                 </Stack>
               </CardContent>
@@ -380,10 +390,10 @@ export function RegisterPage() {
                   <Typography variant="body2" color="text.secondary" mb={0.5}>Resumo do pedido</Typography>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography fontWeight={700}>Workou {plan.label} — Mensal</Typography>
-                    <Typography fontWeight={900} color="#22D3EE">R$ {plan.price.toLocaleString('pt-BR')}</Typography>
+                    <Typography fontWeight={900} color="#22D3EE">R$ {(plan.price ?? 0).toLocaleString('pt-BR')}</Typography>
                   </Stack>
                   <Typography variant="caption" color="text.secondary">
-                    Empresa: {companyName} · {plan.seats === -1 ? 'Ilimitado' : `${plan.seats} seat${plan.seats > 1 ? 's' : ''}`} · {plan.jobs === -1 ? 'Vagas ilimitadas' : `${plan.jobs} vagas/mês`}
+                    Empresa: {companyName} · Seats ilimitados · {plan.jobs === -1 ? 'Vagas ilimitadas' : `${plan.jobs} vagas/mês`}
                   </Typography>
                 </Box>
 
@@ -441,7 +451,7 @@ export function RegisterPage() {
                 >
                   {loading
                     ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Processando...</>
-                    : `Pagar R$ ${plan.price.toLocaleString('pt-BR')} e criar conta`}
+                    : `Pagar R$ ${(plan.price ?? 0).toLocaleString('pt-BR')} e criar conta`}
                 </Button>
 
                 <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">

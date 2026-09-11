@@ -25,6 +25,19 @@ client.interceptors.response.use(
   },
 );
 
+function isTokenValid(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    // JWT payload is base64url (RFC 4648 §5), not plain base64 — normalize before atob.
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64));
+    if (!payload.exp) return true;
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export const api = {
   async login(email: string, password: string, role?: string) {
     const response = await client.post("/auth/login", {
@@ -81,6 +94,10 @@ export const api = {
   } | null {
     const userStr = localStorage.getItem("workou_user");
     return userStr ? JSON.parse(userStr) : null;
+  },
+
+  hasValidSession(): boolean {
+    return isTokenValid(localStorage.getItem("workou_token"));
   },
 
   async getCandidateMe() {
@@ -199,7 +216,6 @@ export const api = {
     name: string;
     email: string;
     password: string;
-    cardLast4?: string;
   }) {
     const response = await client.post("/companies/me/seats", dto);
     return response.data;

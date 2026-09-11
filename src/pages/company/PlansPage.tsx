@@ -23,19 +23,18 @@ import { useNavigate } from "react-router-dom";
 
 import { api } from "../../services/api";
 
+// Seats são ilimitados em todos os planos — só o volume de vagas/mês muda entre eles.
 const PLANS = [
   {
     id: "essencial",
     label: "Essencial",
-    price: 299,
-    seats: 1,
+    price: 299 as number | null,
     jobs: 3,
-    extraSeat: 99,
     extraJob: 49,
     color: "#5B3DF5",
     highlight: false,
     features: [
-      "1 gestor de RH",
+      "Gestores de RH ilimitados",
       "3 vagas anunciadas/mês",
       "Filtro por IA e match automático",
       "CardStack Tinder-style",
@@ -46,15 +45,13 @@ const PLANS = [
   {
     id: "pro",
     label: "Pro",
-    price: 699,
-    seats: 3,
+    price: 699 as number | null,
     jobs: 10,
-    extraSeat: 89,
     extraJob: 39,
     color: "#22D3EE",
     highlight: true,
     features: [
-      "3 gestores de RH",
+      "Gestores de RH ilimitados",
       "10 vagas/mês",
       "Filtro por IA e match automático",
       "CardStack Tinder-style",
@@ -66,15 +63,13 @@ const PLANS = [
   {
     id: "business",
     label: "Business",
-    price: 1499,
-    seats: 10,
+    price: 1499 as number | null,
     jobs: 30,
-    extraSeat: 79,
     extraJob: 29,
     color: "#ffc107",
     highlight: false,
     features: [
-      "10 gestores de RH",
+      "Gestores de RH ilimitados",
       "30 vagas/mês",
       "Filtro por IA e match automático",
       "CardStack Tinder-style",
@@ -87,10 +82,8 @@ const PLANS = [
   {
     id: "enterprise",
     label: "Enterprise",
-    price: 3999,
-    seats: -1,
+    price: null as number | null,
     jobs: -1,
-    extraSeat: 0,
     extraJob: 0,
     color: "#ff5d73",
     highlight: false,
@@ -321,43 +314,50 @@ export function PlansPage() {
                     {plan.label}
                   </Typography>
 
-                  <Stack
-                    direction="row"
-                    alignItems="baseline"
-                    spacing={0.5}
-                    mb={0.5}
-                  >
-                    <Typography
-                      variant="h4"
-                      fontWeight={900}
-                      sx={{ color: plan.color }}
+                  {plan.price === null ? (
+                    <Box mb={0.5}>
+                      <Typography variant="h5" fontWeight={900} sx={{ color: plan.color }}>
+                        Sob consulta
+                      </Typography>
+                      <Typography color="text.secondary" variant="body2">
+                        Preço negociado com o time comercial
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Stack
+                      direction="row"
+                      alignItems="baseline"
+                      spacing={0.5}
+                      mb={0.5}
                     >
-                      R$ {plan.price.toLocaleString("pt-BR")}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                      /mês
-                    </Typography>
-                  </Stack>
+                      <Typography
+                        variant="h4"
+                        fontWeight={900}
+                        sx={{ color: plan.color }}
+                      >
+                        R$ {plan.price.toLocaleString("pt-BR")}
+                      </Typography>
+                      <Typography color="text.secondary" variant="body2">
+                        /mês
+                      </Typography>
+                    </Stack>
+                  )}
 
                   <Typography color="text.secondary" variant="body2" mb={2}>
-                    {plan.seats === -1
-                      ? "Seats ilimitados"
-                      : `${plan.seats} seat${plan.seats > 1 ? "s" : ""}`}{" "}
-                    ·{" "}
+                    Seats ilimitados ·{" "}
                     {plan.jobs === -1
                       ? "Vagas ilimitadas"
                       : `${plan.jobs} vagas/mês`}
                   </Typography>
 
-                  {plan.extraSeat > 0 && (
+                  {plan.extraJob > 0 && (
                     <Typography
                       variant="caption"
                       color="text.secondary"
                       mb={2}
                       display="block"
                     >
-                      +R$ {plan.extraSeat}/seat extra · +R$ {plan.extraJob}/vaga
-                      extra
+                      +R$ {plan.extraJob}/vaga extra
                     </Typography>
                   )}
 
@@ -410,13 +410,20 @@ export function PlansPage() {
                           }),
                     }}
                     disabled={isCurrent || !isOwner}
-                    onClick={() => openPayment(plan.id)}
+                    onClick={() =>
+                      plan.price === null
+                        ? (window.location.href =
+                            "mailto:contato@workou.com.br?subject=Interesse%20no%20plano%20Enterprise")
+                        : openPayment(plan.id)
+                    }
                   >
                     {isCurrent
                       ? "Plano atual"
                       : !isOwner
                         ? "Requer permissão de dono"
-                        : `Assinar ${plan.label}`}
+                        : plan.price === null
+                          ? "Falar com vendas"
+                          : `Assinar ${plan.label}`}
                   </Button>
                 </CardContent>
               </Card>
@@ -490,17 +497,14 @@ export function PlansPage() {
                       Workou {chosenPlan?.label} — Mensal
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {chosenPlan?.seats === -1
-                        ? "Ilimitado"
-                        : `${chosenPlan?.seats} seat${(chosenPlan?.seats ?? 0) > 1 ? "s" : ""}`}{" "}
-                      ·{" "}
+                      Seats ilimitados ·{" "}
                       {chosenPlan?.jobs === -1
                         ? "Vagas ilimitadas"
                         : `${chosenPlan?.jobs} vagas/mês`}
                     </Typography>
                   </Box>
                   <Typography variant="h6" fontWeight={900} color="secondary.main">
-                    R$ {chosenPlan?.price.toLocaleString("pt-BR")}
+                    R$ {(chosenPlan?.price ?? 0).toLocaleString("pt-BR")}
                   </Typography>
                 </Stack>
               </Box>
@@ -565,7 +569,7 @@ export function PlansPage() {
                   {payLoading ? (
                     <CircularProgress size={20} color="inherit" />
                   ) : (
-                    `Pagar R$ ${chosenPlan?.price.toLocaleString("pt-BR")}`
+                    `Pagar R$ ${(chosenPlan?.price ?? 0).toLocaleString("pt-BR")}`
                   )}
                 </Button>
               </Stack>
