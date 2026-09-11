@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -5,7 +6,8 @@ import StarIcon from '@mui/icons-material/Star';
 import WorkIcon from '@mui/icons-material/Work';
 import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { Avatar, Box, Chip, Dialog, DialogContent, DialogTitle, Divider, IconButton, Stack, ThemeProvider, Typography } from '@mui/material';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import { Avatar, Backdrop, Box, Chip, Dialog, DialogContent, DialogTitle, Divider, IconButton, Stack, ThemeProvider, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { darkTheme } from '../../theme/theme';
 
@@ -34,7 +36,7 @@ interface ResumeModalProps {
   open: boolean;
   onClose: () => void;
   candidate: {
-    user?: { name?: string };
+    user?: { name?: string; avatar?: string };
     headline?: string;
     location?: string;
     workModel?: string;
@@ -58,7 +60,9 @@ function getInitials(name?: string) {
 
 export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayload }: ResumeModalProps) {
   const name = candidate.user?.name;
+  const avatar = candidate.user?.avatar;
   const initials = getInitials(name);
+  const [zoomOpen, setZoomOpen] = useState(false);
 
   const experience = parsedPayload?.experience ?? [];
   const education = parsedPayload?.education ?? [];
@@ -82,19 +86,42 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
           }}
         >
           {/* Avatar */}
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              bgcolor: '#5B3DF5',
-              fontSize: '1.6rem',
-              fontWeight: 900,
-              border: '3px solid #22D3EE',
-              flexShrink: 0
-            }}
+          <Box
+            sx={{ position: 'relative', flexShrink: 0, cursor: avatar ? 'pointer' : 'default' }}
+            onClick={() => avatar && setZoomOpen(true)}
           >
-            {initials}
-          </Avatar>
+            <Avatar
+              src={avatar}
+              sx={{
+                width: 80,
+                height: 80,
+                bgcolor: '#5B3DF5',
+                fontSize: '1.6rem',
+                fontWeight: 900,
+                border: '3px solid #22D3EE'
+              }}
+            >
+              {initials}
+            </Avatar>
+            {avatar && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: 'rgba(0,0,0,0.4)',
+                  opacity: 0,
+                  transition: 'opacity 0.15s',
+                  '&:hover': { opacity: 1 }
+                }}
+              >
+                <ZoomInIcon sx={{ color: '#fff' }} />
+              </Box>
+            )}
+          </Box>
 
           {/* Name + details */}
           <Box flex={1}>
@@ -260,6 +287,21 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
         )}
       </DialogContent>
     </Dialog>
+
+    {avatar && (
+      <Backdrop
+        open={zoomOpen}
+        onClick={() => setZoomOpen(false)}
+        sx={{ zIndex: theme => theme.zIndex.modal + 1, bgcolor: 'rgba(6,19,39,0.92)', cursor: 'zoom-out' }}
+      >
+        <Box
+          component="img"
+          src={avatar}
+          alt={name || 'Foto do candidato'}
+          sx={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 2, boxShadow: '0 0 60px rgba(0,0,0,0.6)' }}
+        />
+      </Backdrop>
+    )}
     </ThemeProvider>
   );
 }

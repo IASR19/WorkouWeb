@@ -277,7 +277,7 @@ export function CandidatePage() {
                 Visão do Candidato
               </Typography>
               <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ width: 48, height: 48, bgcolor: '#0EA5C4', fontWeight: 900 }}>
+                <Avatar src={profile?.user?.avatar} sx={{ width: 48, height: 48, bgcolor: '#0EA5C4', fontWeight: 900 }}>
                   {profile?.user?.name?.[0] ?? 'C'}
                 </Avatar>
                 <Box>

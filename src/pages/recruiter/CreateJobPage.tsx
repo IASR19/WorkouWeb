@@ -52,6 +52,20 @@ export function CreateJobPage() {
     setSkillInput('');
   };
 
+  const handleSkillInputChange = (value: string) => {
+    if (!value.includes(',')) {
+      setSkillInput(value);
+      return;
+    }
+    const parts = value.split(',');
+    const remainder = parts.pop() ?? '';
+    const newSkills = parts.map(p => p.trim()).filter(p => p);
+    if (newSkills.length) {
+      setSkills(prev => [...prev, ...newSkills.filter(s => !prev.includes(s))]);
+    }
+    setSkillInput(remainder);
+  };
+
   const removeSkill = (s: string) => setSkills(prev => prev.filter(x => x !== s));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -136,7 +150,7 @@ export function CreateJobPage() {
                     <TextField
                       size="small"
                       value={skillInput}
-                      onChange={e => setSkillInput(e.target.value)}
+                      onChange={e => handleSkillInputChange(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
                       placeholder="React, Node.js, Python..."
                       fullWidth

@@ -81,6 +81,7 @@ function CandidateCard({
       >
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
+            src={candidate?.user?.avatar}
             sx={{
               width: 56,
               height: 56,
@@ -131,7 +132,7 @@ function CandidateCard({
         </Stack>
       )}
 
-      <Grid container spacing={2} mt="auto">
+      <Grid container spacing={2}>
         <Grid size={{ xs: 6 }}>
           <Typography color="text.secondary" variant="caption" display="block">
             Experiência
@@ -171,7 +172,7 @@ function CandidateCard({
           variant="caption"
           color="text.secondary"
           textAlign="center"
-          mt={1}
+          mt="auto"
         >
           Clique para ver currículo completo
         </Typography>
@@ -554,7 +555,7 @@ export function RecruiterPage() {
                 <CardStack
                   items={queue.slice(currentIndex)}
                   activeIndex={0}
-                  height={480}
+                  height={340}
                   swipeDirection={swipeDir}
                   onSwipeAnimationEnd={handleSwipeAnimationEnd}
                   renderCard={(match, isActive) => (
