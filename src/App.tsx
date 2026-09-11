@@ -8,6 +8,7 @@ import { PlansPage } from './pages/company/PlansPage';
 import { LoginPage } from './pages/login/LoginPage';
 import { MatchesPage } from './pages/matches/MatchesPage';
 import { NotFoundPage } from './pages/notFound/NotFoundPage';
+import { ProfilePage } from './pages/profile/ProfilePage';
 import { RegisterPage } from './pages/register/RegisterPage';
 import { RecruiterPage } from './pages/recruiter/RecruiterPage';
 import { CreateJobPage } from './pages/recruiter/CreateJobPage';
@@ -26,6 +27,7 @@ export function App() {
         <Route path="/matches" element={<MatchesPage />} />
         <Route path="/company" element={<CompanyDashboard />} />
         <Route path="/plans" element={<PlansPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

@@ -7,6 +7,10 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import StarIcon from "@mui/icons-material/Star";
 import TimerIcon from "@mui/icons-material/Timer";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import EditIcon from "@mui/icons-material/Edit";
+import PauseIcon from "@mui/icons-material/Pause";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Alert,
   Avatar,
@@ -80,10 +84,10 @@ function CandidateCard({
             sx={{
               width: 56,
               height: 56,
-              background: "linear-gradient(135deg, #7c4dff, #00d3b0)",
+              bgcolor: "#5B3DF5",
               fontSize: "1.1rem",
               fontWeight: 900,
-              border: "2px solid rgba(0,211,176,0.4)",
+              border: "2px solid rgba(34,211,238,0.4)",
             }}
           >
             {getInitials(candidate?.user?.name)}
@@ -104,8 +108,8 @@ function CandidateCard({
           size="small"
           sx={{
             fontWeight: 900,
-            bgcolor: score >= 90 ? undefined : "rgba(124,77,255,0.2)",
-            color: score >= 90 ? undefined : "#7c4dff",
+            bgcolor: score >= 90 ? undefined : "rgba(91,61,245,0.2)",
+            color: score >= 90 ? undefined : "primary.main",
           }}
         />
       </Stack>
@@ -118,8 +122,8 @@ function CandidateCard({
               label={s}
               size="small"
               sx={{
-                bgcolor: "rgba(0,211,176,0.1)",
-                color: "#00d3b0",
+                bgcolor: "rgba(34,211,238,0.1)",
+                color: "secondary.main",
                 fontSize: "0.7rem",
               }}
             />
@@ -197,10 +201,10 @@ export function RecruiterPage() {
 
   const fetchJobs = async () => {
     try {
-      const jobList = await api.getJobs();
+      const { items: jobList } = await api.getJobs();
       setJobs(jobList);
       if (jobList.length > 0) {
-        setSelectedJobId(jobList[0].id);
+        setSelectedJobId(prev => jobList.some((j: any) => j.id === prev) ? prev : jobList[0].id);
       } else {
         // Se não tem vagas, para de carregar
         setLoading(false);
@@ -233,11 +237,32 @@ export function RecruiterPage() {
     if (selectedJobId) fetchQueue(selectedJobId);
   }, [selectedJobId]);
 
+  const handleToggleJobStatus = async (jobId: string, current: "draft" | "open" | "paused" | "closed") => {
+    const next: "open" | "paused" = current === "paused" ? "open" : "paused";
+    try {
+      await api.setJobStatus(jobId, next);
+      await fetchJobs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!window.confirm("Excluir esta vaga? Essa ação não pode ser desfeita.")) return;
+    try {
+      await api.deleteJob(jobId);
+      setSelectedJobId("");
+      await fetchJobs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const currentUser = api.getCurrentUser();
   if (currentUser?.role === "candidate") {
     return (
       <Box maxWidth={560} mx="auto" mt={6} textAlign="center">
-        <Card sx={{ p: 4, border: "1px solid rgba(124,77,255,0.3)" }}>
+        <Card sx={{ p: 4, border: "1px solid rgba(91,61,245,0.3)" }}>
           <CardContent>
             <Stack spacing={3} alignItems="center">
               <Box
@@ -247,7 +272,7 @@ export function RecruiterPage() {
                   borderRadius: "50%",
                   display: "grid",
                   placeItems: "center",
-                  background: "linear-gradient(135deg, #7c4dff, #ff5d73)",
+                  bgcolor: "#5B3DF5",
                 }}
               >
                 <BusinessCenterIcon sx={{ fontSize: 36 }} />
@@ -340,15 +365,7 @@ export function RecruiterPage() {
         gap={2}
       >
         <Box>
-          <Typography
-            variant="h4"
-            fontWeight={900}
-            sx={{
-              background: "linear-gradient(45deg, #7c4dff, #00d3b0)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
+          <Typography variant="h4" fontWeight={900}>
             Dashboard do Recrutador
           </Typography>
           <Typography color="text.secondary" variant="body2">
@@ -372,6 +389,25 @@ export function RecruiterPage() {
               </Select>
             </FormControl>
           ) : null}
+          {currentJob && (
+            <Stack direction="row" spacing={0.5}>
+              <Tooltip title="Editar vaga">
+                <IconButton size="small" onClick={() => navigate(`/recruiter/create-job?edit=${currentJob.id}`)}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={currentJob.status === "paused" ? "Reabrir vaga" : "Pausar vaga"}>
+                <IconButton size="small" onClick={() => handleToggleJobStatus(currentJob.id, currentJob.status)}>
+                  {currentJob.status === "paused" ? <PlayArrowIcon fontSize="small" /> : <PauseIcon fontSize="small" />}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Excluir vaga">
+                <IconButton size="small" color="error" onClick={() => handleDeleteJob(currentJob.id)}>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          )}
           <Tooltip title="Criar nova vaga">
             <Button
               variant="outlined"
@@ -424,13 +460,13 @@ export function RecruiterPage() {
           sx={{
             p: 6,
             textAlign: "center",
-            border: "1px dashed rgba(124,77,255,0.3)",
+            border: "1px dashed rgba(91,61,245,0.3)",
           }}
         >
           <CardContent>
             <Stack spacing={2} alignItems="center">
               <BusinessCenterIcon
-                sx={{ fontSize: 48, color: "rgba(124,77,255,0.4)" }}
+                sx={{ fontSize: 48, color: "rgba(91,61,245,0.4)" }}
               />
               <Typography variant="h5" fontWeight={800}>
                 Nenhuma vaga publicada
@@ -443,7 +479,7 @@ export function RecruiterPage() {
                 startIcon={<AddIcon />}
                 onClick={() => navigate("/recruiter/create-job")}
                 sx={{
-                  background: "linear-gradient(135deg, #7c4dff, #00d3b0)",
+                  background: "linear-gradient(135deg, #5B3DF5, #22D3EE)",
                   fontWeight: 800,
                 }}
               >
@@ -458,7 +494,7 @@ export function RecruiterPage() {
           <Grid size={{ xs: 12, md: 4 }}>
             <Card
               sx={{
-                border: "1px solid rgba(124,77,255,0.15)",
+                border: "1px solid rgba(91,61,245,0.15)",
                 position: "sticky",
                 top: 80,
               }}
@@ -484,8 +520,8 @@ export function RecruiterPage() {
                         label={s}
                         size="small"
                         sx={{
-                          bgcolor: "rgba(124,77,255,0.1)",
-                          color: "#7c4dff",
+                          bgcolor: "rgba(91,61,245,0.1)",
+                          color: "#5B3DF5",
                         }}
                       />
                     ))}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert, Box, Button, Card, CardContent, CircularProgress,
-  Stack, TextField, Typography, IconButton
+  Stack, TextField, Typography, IconButton, ThemeProvider
 } from '@mui/material';
 import WorkIcon from '@mui/icons-material/Work';
 import PersonIcon from '@mui/icons-material/Person';
@@ -10,6 +10,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { WorkouLogoMark } from '../../components/WorkouLogo/WorkouLogo';
 import { api } from '../../services/api';
+import { darkTheme } from '../../theme/theme';
 
 type Role = 'recruiter' | 'candidate';
 type Step = 'role' | 'credentials';
@@ -45,29 +46,28 @@ export function LoginPage() {
 
   const logoArea = (
     <Stack alignItems="center" spacing={2} mb={4}>
-      <Box sx={{ filter: 'drop-shadow(0 0 28px rgba(124,77,255,0.55))' }}>
-        <WorkouLogoMark size={80} />
-      </Box>
+      <WorkouLogoMark size={80} />
       <Typography variant="h3" fontWeight={900} letterSpacing="-0.03em" lineHeight={1}>
         <Box component="span" color="white">Work</Box>
-        <Box component="span" color="#00d3b0">ou</Box>
+        <Box component="span" color="#22D3EE">ou</Box>
       </Typography>
       <Typography color="text.secondary" variant="body2" textAlign="center" sx={{ fontStyle: 'italic' }}>
         Deu match.{' '}
-        <Box component="span" color="#7c4dff" fontWeight={700} fontStyle="normal">Deu certo.</Box>
+        <Box component="span" color="#5B3DF5" fontWeight={700} fontStyle="normal">Deu certo.</Box>
         {' '}Workou.
       </Typography>
     </Stack>
   );
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       minHeight="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
       sx={{
-        background: 'radial-gradient(circle at 10% 0%, rgba(124,77,255,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.18), transparent 32%), #061327',
+        bgcolor: '#0B1220',
         p: 3
       }}
     >
@@ -87,9 +87,9 @@ export function LoginPage() {
                 onClick={() => handleSelectRole('recruiter')}
                 sx={{
                   cursor: 'pointer',
-                  border: '2px solid rgba(124,77,255,0.3)',
-                  transition: 'all 0.18s',
-                  '&:hover': { border: '2px solid #7c4dff', boxShadow: '0 0 24px rgba(124,77,255,0.3)', transform: 'translateY(-1px)' }
+                  border: '2px solid rgba(91,61,245,0.3)',
+                  transition: 'border-color 0.18s, transform 0.18s',
+                  '&:hover': { borderColor: '#5B3DF5', transform: 'translateY(-1px)' }
                 }}
               >
                 <CardContent>
@@ -97,7 +97,7 @@ export function LoginPage() {
                     <Box sx={{
                       width: 52, height: 52, borderRadius: '50%',
                       display: 'grid', placeItems: 'center', flexShrink: 0,
-                      background: 'linear-gradient(135deg, #7c4dff, #5b2de8)'
+                      bgcolor: '#5B3DF5'
                     }}>
                       <WorkIcon sx={{ fontSize: 26, color: '#fff' }} />
                     </Box>
@@ -115,9 +115,9 @@ export function LoginPage() {
                 onClick={() => handleSelectRole('candidate')}
                 sx={{
                   cursor: 'pointer',
-                  border: '2px solid rgba(0,211,176,0.3)',
-                  transition: 'all 0.18s',
-                  '&:hover': { border: '2px solid #00d3b0', boxShadow: '0 0 24px rgba(0,211,176,0.3)', transform: 'translateY(-1px)' }
+                  border: '2px solid rgba(34,211,238,0.3)',
+                  transition: 'border-color 0.18s, transform 0.18s',
+                  '&:hover': { borderColor: '#22D3EE', transform: 'translateY(-1px)' }
                 }}
               >
                 <CardContent>
@@ -125,7 +125,7 @@ export function LoginPage() {
                     <Box sx={{
                       width: 52, height: 52, borderRadius: '50%',
                       display: 'grid', placeItems: 'center', flexShrink: 0,
-                      background: 'linear-gradient(135deg, #00d3b0, #009e84)'
+                      bgcolor: '#0EA5C4'
                     }}>
                       <PersonIcon sx={{ fontSize: 26, color: '#fff' }} />
                     </Box>
@@ -151,7 +151,7 @@ export function LoginPage() {
 
         {/* STEP 2: credentials */}
         {step === 'credentials' && (
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.2)', boxShadow: '0 0 40px rgba(124,77,255,0.15)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
             <CardContent sx={{ p: 4 }}>
               <form onSubmit={handleLogin}>
                 <Stack spacing={3}>
@@ -163,9 +163,9 @@ export function LoginPage() {
                     <Box
                       sx={{
                         px: 1.5, py: 0.4, borderRadius: 1,
-                        border: `1px solid ${role === 'recruiter' ? 'rgba(124,77,255,0.5)' : 'rgba(0,211,176,0.5)'}`,
-                        color: role === 'recruiter' ? '#a78bff' : '#00d3b0',
-                        bgcolor: role === 'recruiter' ? 'rgba(124,77,255,0.1)' : 'rgba(0,211,176,0.1)',
+                        border: `1px solid ${role === 'recruiter' ? 'rgba(91,61,245,0.5)' : 'rgba(34,211,238,0.5)'}`,
+                        color: role === 'recruiter' ? '#9B8AFB' : '#22D3EE',
+                        bgcolor: role === 'recruiter' ? 'rgba(91,61,245,0.1)' : 'rgba(34,211,238,0.1)',
                         fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.06em',
                         textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 0.5
                       }}
@@ -211,8 +211,8 @@ export function LoginPage() {
                     disabled={loading}
                     sx={{
                       background: role === 'recruiter'
-                        ? 'linear-gradient(135deg, #7c4dff, #5b2de8)'
-                        : 'linear-gradient(135deg, #00d3b0, #009e84)',
+                        ? 'linear-gradient(135deg, #5B3DF5, #4C2FE0)'
+                        : 'linear-gradient(135deg, #22D3EE, #0EA5C4)',
                       fontWeight: 800,
                       py: 1.5
                     }}
@@ -233,5 +233,6 @@ export function LoginPage() {
         )}
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }

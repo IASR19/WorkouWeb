@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import CheckIcon from "@mui/icons-material/Check";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import StarIcon from "@mui/icons-material/Star";
 import {
   Alert,
@@ -31,7 +32,7 @@ const PLANS = [
     jobs: 3,
     extraSeat: 99,
     extraJob: 49,
-    color: "#7c4dff",
+    color: "#5B3DF5",
     highlight: false,
     features: [
       "1 gestor de RH",
@@ -50,7 +51,7 @@ const PLANS = [
     jobs: 10,
     extraSeat: 89,
     extraJob: 39,
-    color: "#00d3b0",
+    color: "#22D3EE",
     highlight: true,
     features: [
       "3 gestores de RH",
@@ -219,14 +220,7 @@ export function PlansPage() {
       <Box textAlign="center" mb={5}>
         <Typography variant="h4" fontWeight={900} mb={1}>
           Escolha o plano ideal para{" "}
-          <Box
-            component="span"
-            sx={{
-              background: "linear-gradient(45deg,#7c4dff,#00d3b0)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
+          <Box component="span" color="secondary.main">
             sua empresa
           </Box>
         </Typography>
@@ -240,8 +234,8 @@ export function PlansPage() {
             sx={{
               mt: 2,
               fontWeight: 800,
-              bgcolor: "rgba(124,77,255,0.15)",
-              color: "#7c4dff",
+              bgcolor: "rgba(91,61,245,0.15)",
+              color: "#5B3DF5",
             }}
           />
         )}
@@ -404,7 +398,7 @@ export function PlansPage() {
                       fontWeight: 800,
                       ...(plan.highlight
                         ? {
-                            background: `linear-gradient(135deg, ${plan.color}, #009e84)`,
+                            background: `linear-gradient(135deg, ${plan.color}, #0EA5C4)`,
                           }
                         : {
                             borderColor: plan.color,
@@ -454,9 +448,14 @@ export function PlansPage() {
         fullWidth
       >
         <DialogTitle fontWeight={800}>
-          {paySuccess
-            ? "✅ Pagamento aprovado!"
-            : `Assinar plano ${chosenPlan?.label}`}
+          {paySuccess ? (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CheckCircleIcon color="success" fontSize="small" />
+              <span>Pagamento aprovado!</span>
+            </Stack>
+          ) : (
+            `Assinar plano ${chosenPlan?.label}`
+          )}
         </DialogTitle>
         <DialogContent>
           {paySuccess ? (
@@ -464,7 +463,7 @@ export function PlansPage() {
               <Typography color="text.secondary" textAlign="center">
                 {paySuccess}
               </Typography>
-              <CircularProgress size={32} sx={{ color: "#00d3b0" }} />
+              <CircularProgress size={32} color="secondary" />
             </Stack>
           ) : (
             <Stack spacing={2.5} pt={1}>
@@ -476,9 +475,9 @@ export function PlansPage() {
               <Box
                 sx={{
                   p: 2,
-                  border: "1px solid rgba(124,77,255,0.2)",
+                  border: "1px solid rgba(91,61,245,0.2)",
                   borderRadius: 2,
-                  bgcolor: "rgba(124,77,255,0.05)",
+                  bgcolor: "rgba(91,61,245,0.05)",
                 }}
               >
                 <Stack
@@ -500,7 +499,7 @@ export function PlansPage() {
                         : `${chosenPlan?.jobs} vagas/mês`}
                     </Typography>
                   </Box>
-                  <Typography variant="h6" fontWeight={900} color="#00d3b0">
+                  <Typography variant="h6" fontWeight={900} color="secondary.main">
                     R$ {chosenPlan?.price.toLocaleString("pt-BR")}
                   </Typography>
                 </Stack>
@@ -558,7 +557,7 @@ export function PlansPage() {
                   disabled={payLoading}
                   onClick={handleSubscribe}
                   sx={{
-                    background: `linear-gradient(135deg, ${chosenPlan?.color ?? "#7c4dff"}, #00d3b0)`,
+                    background: `linear-gradient(135deg, ${chosenPlan?.color ?? "#5B3DF5"}, #22D3EE)`,
                     fontWeight: 800,
                     px: 3,
                   }}

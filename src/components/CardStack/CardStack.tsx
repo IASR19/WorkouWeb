@@ -50,7 +50,7 @@ export function CardStack<T>({
       zIndex: 3,
       transform: 'scale(1) translateY(0px)',
       opacity: 1,
-      boxShadow: '0 0 0 2px #00d3b0, 0 0 40px rgba(0,211,176,0.35), 0 16px 48px rgba(0,0,0,0.5)'
+      boxShadow: '0 0 0 2px #22D3EE, 0 0 40px rgba(34,211,238,0.35), 0 16px 48px rgba(0,0,0,0.5)'
     },
     {
       zIndex: 2,

@@ -2,14 +2,15 @@ import { useCallback, useState } from 'react';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WorkIcon from '@mui/icons-material/Work';
 import {
   Alert, Box, Button, Card, CardContent, Chip, CircularProgress,
-  LinearProgress, Stack, Typography
+  LinearProgress, Stack, Typography, ThemeProvider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { ResumeModal } from '../../components/ResumeModal/ResumeModal';
+import { WorkouLogoMark } from '../../components/WorkouLogo/WorkouLogo';
+import { darkTheme } from '../../theme/theme';
 
 type Step = 'upload' | 'analyzing' | 'preview';
 
@@ -51,22 +52,21 @@ export function OnboardingPage() {
   const handleConfirm = () => navigate('/candidate');
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       minHeight="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
       sx={{
-        background: 'radial-gradient(circle at 10% 0%, rgba(124,77,255,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.18), transparent 32%), #061327',
+        bgcolor: '#0B1220',
         p: 3
       }}
     >
       <Box width="100%" maxWidth={560}>
         {/* Logo */}
         <Stack alignItems="center" spacing={2} mb={4}>
-          <Box sx={{ width: 60, height: 60, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', boxShadow: '0 0 28px rgba(124,77,255,0.4)' }}>
-            <WorkIcon sx={{ fontSize: 32 }} />
-          </Box>
+          <WorkouLogoMark size={60} />
           <Typography variant="h5" fontWeight={900} textAlign="center">
             {step === 'upload' && 'Envie seu currículo'}
             {step === 'analyzing' && 'IA analisando...'}
@@ -80,24 +80,24 @@ export function OnboardingPage() {
         </Stack>
 
         {step === 'upload' && (
-          <Card sx={{ border: '1px solid rgba(0,211,176,0.2)' }}>
+          <Card sx={{ border: '1px solid rgba(34,211,238,0.2)' }}>
             <CardContent sx={{ p: 4 }}>
               <Box
                 onDragOver={e => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
                 sx={{
-                  border: `2px dashed ${dragging ? '#00d3b0' : 'rgba(0,211,176,0.3)'}`,
+                  border: `2px dashed ${dragging ? '#22D3EE' : 'rgba(34,211,238,0.3)'}`,
                   borderRadius: 3,
                   p: 6,
                   textAlign: 'center',
                   transition: 'all 0.2s',
-                  bgcolor: dragging ? 'rgba(0,211,176,0.05)' : 'transparent',
+                  bgcolor: dragging ? 'rgba(34,211,238,0.05)' : 'transparent',
                   cursor: 'pointer'
                 }}
                 onClick={() => document.getElementById('resume-input')?.click()}
               >
-                <UploadFileIcon sx={{ fontSize: 56, color: dragging ? '#00d3b0' : 'text.secondary', mb: 2 }} />
+                <UploadFileIcon sx={{ fontSize: 56, color: dragging ? '#22D3EE' : 'text.secondary', mb: 2 }} />
                 <Typography variant="h6" fontWeight={700} mb={1}>
                   Arraste seu currículo aqui
                 </Typography>
@@ -106,7 +106,7 @@ export function OnboardingPage() {
                   variant="contained"
                   component="label"
                   startIcon={<UploadFileIcon />}
-                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', fontWeight: 800 }}
+                  sx={{ background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)', fontWeight: 800 }}
                   onClick={e => e.stopPropagation()}
                 >
                   Selecionar PDF
@@ -126,17 +126,17 @@ export function OnboardingPage() {
         )}
 
         {step === 'analyzing' && (
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
             <CardContent sx={{ p: 6, textAlign: 'center' }}>
               <Box sx={{ position: 'relative', display: 'inline-flex', mb: 4 }}>
-                <CircularProgress size={96} sx={{ color: '#7c4dff' }} />
+                <CircularProgress size={96} sx={{ color: '#5B3DF5' }} />
                 <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <AutoAwesomeIcon sx={{ fontSize: 36, color: '#00d3b0' }} />
+                  <AutoAwesomeIcon sx={{ fontSize: 36, color: '#22D3EE' }} />
                 </Box>
               </Box>
               <Typography variant="h6" fontWeight={800} mb={1}>IA analisando seu currículo</Typography>
               <Typography color="text.secondary" mb={3}>{file?.name}</Typography>
-              <LinearProgress sx={{ borderRadius: 4, height: 6, bgcolor: 'rgba(124,77,255,0.2)', '& .MuiLinearProgress-bar': { background: 'linear-gradient(90deg, #7c4dff, #00d3b0)' } }} />
+              <LinearProgress sx={{ borderRadius: 4, height: 6, bgcolor: 'rgba(91,61,245,0.2)', '& .MuiLinearProgress-bar': { background: 'linear-gradient(90deg, #5B3DF5, #22D3EE)' } }} />
               <Stack spacing={1} mt={3}>
                 {['Extraindo texto do PDF...', 'Identificando competências...', 'Gerando perfil padronizado...'].map(t => (
                   <Typography key={t} variant="body2" color="text.secondary">{t}</Typography>
@@ -147,7 +147,7 @@ export function OnboardingPage() {
         )}
 
         {step === 'preview' && parsedData && candidate && (
-          <Card sx={{ border: '1px solid rgba(0,211,176,0.3)', boxShadow: '0 0 30px rgba(0,211,176,0.15)' }}>
+          <Card sx={{ border: '1px solid rgba(34,211,238,0.3)' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
                 <CheckCircleIcon color="success" sx={{ fontSize: 28 }} />
@@ -168,7 +168,7 @@ export function OnboardingPage() {
                 {parsedData.skills?.length > 0 && (
                   <Stack direction="row" spacing={1} flexWrap="wrap" gap={1} mt={1}>
                     {parsedData.skills.slice(0, 8).map((s: string) => (
-                      <Chip key={s} label={s} size="small" sx={{ bgcolor: 'rgba(0,211,176,0.1)', color: '#00d3b0' }} />
+                      <Chip key={s} label={s} size="small" sx={{ bgcolor: 'rgba(34,211,238,0.1)', color: '#22D3EE' }} />
                     ))}
                   </Stack>
                 )}
@@ -189,7 +189,7 @@ export function OnboardingPage() {
                 size="large"
                 fullWidth
                 onClick={handleConfirm}
-                sx={{ background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', fontWeight: 800, py: 1.5 }}
+                sx={{ background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)', fontWeight: 800, py: 1.5 }}
               >
                 Confirmar e buscar vagas
               </Button>
@@ -207,5 +207,6 @@ export function OnboardingPage() {
         />
       )}
     </Box>
+    </ThemeProvider>
   );
 }

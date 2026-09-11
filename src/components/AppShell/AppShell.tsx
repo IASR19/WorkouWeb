@@ -8,6 +8,8 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import {
+  Avatar,
+  Badge,
   Box,
   Button,
   Container,
@@ -17,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { WorkouWordmark } from "../WorkouLogo/WorkouLogo";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppTheme } from "../../context/ThemeContext";
 import { api } from "../../services/api";
 
@@ -34,9 +36,11 @@ const CANDIDATE_NAV = [
 
 export function AppShell() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { mode, toggleMode } = useAppTheme();
   const [authorized, setAuthorized] = useState(false);
   const [company, setCompany] = useState<any>(null);
+  const [newMatchCount, setNewMatchCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("workou_token");
@@ -53,6 +57,32 @@ export function AppShell() {
       api.getMyCompany().then(setCompany).catch(console.error);
     }
   }, []);
+
+  const seenMatchesKey = `workou_seen_matches_count_${api.getCurrentUser()?.id ?? "anon"}`;
+
+  useEffect(() => {
+    const checkNewMatches = async () => {
+      try {
+        const conversations = await api.getConversations();
+        const seen = Number(localStorage.getItem(seenMatchesKey) ?? 0);
+        setNewMatchCount(Math.max(0, conversations.length - seen));
+      } catch {
+        // silently ignore — badge is a nice-to-have, not critical
+      }
+    };
+    checkNewMatches();
+    const interval = setInterval(checkNewMatches, 15000);
+    return () => clearInterval(interval);
+  }, [seenMatchesKey]);
+
+  useEffect(() => {
+    if (location.pathname === "/matches" && newMatchCount > 0) {
+      api.getConversations().then(conversations => {
+        localStorage.setItem(seenMatchesKey, String(conversations.length));
+        setNewMatchCount(0);
+      }).catch(() => {});
+    }
+  }, [location.pathname, newMatchCount]);
 
   const handleLogout = () => {
     api.logout();
@@ -74,14 +104,14 @@ export function AppShell() {
       minHeight="100vh"
       sx={{
         background: isDark
-          ? "radial-gradient(circle at 10% 0%, rgba(124,77,255,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.18), transparent 32%), #061327"
-          : "radial-gradient(circle at 10% 0%, rgba(124,77,255,0.10), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.08), transparent 32%), #f0f4ff",
+          ? "radial-gradient(circle at 10% 0%, rgba(91,61,245,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(34,211,238,0.18), transparent 32%), #0B1220"
+          : "radial-gradient(circle at 10% 0%, rgba(91,61,245,0.10), transparent 38%), radial-gradient(circle at 95% 15%, rgba(34,211,238,0.08), transparent 32%), #F7F8FC",
       }}
     >
       <Box
         component="header"
         sx={{
-          borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(124,77,255,0.12)"}`,
+          borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(91,61,245,0.12)"}`,
           bgcolor: isDark ? "rgba(6,19,39,0.8)" : "rgba(255,255,255,0.8)",
           backdropFilter: "blur(16px)",
           position: "sticky",
@@ -98,30 +128,27 @@ export function AppShell() {
           >
             {/* Logo + role badge */}
             <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{ filter: "drop-shadow(0 0 10px rgba(124,77,255,0.4))" }}
-              >
-                <WorkouWordmark size="sm" dark={!isDark} />
-              </Box>
-              <Box
-                sx={{
-                  px: 1.2,
-                  py: 0.3,
-                  borderRadius: 1,
-                  fontSize: "0.7rem",
-                  fontWeight: 800,
-                  border: `1px solid ${role === "recruiter" ? "rgba(124,77,255,0.4)" : "rgba(0,211,176,0.4)"}`,
-                  color: role === "recruiter" ? "#a78bff" : "#00d3b0",
-                  bgcolor:
-                    role === "recruiter"
-                      ? "rgba(124,77,255,0.1)"
-                      : "rgba(0,211,176,0.1)",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {role === "recruiter" ? "Recrutador" : "Candidato"}
-              </Box>
+              <WorkouWordmark size="sm" dark={!isDark} />
+              <Box sx={{ width: "1px", height: 20, bgcolor: "divider" }} />
+              <Stack direction="row" spacing={0.75} alignItems="center">
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    bgcolor: role === "recruiter" ? "#9B8AFB" : "#22D3EE",
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  fontWeight={800}
+                  letterSpacing="0.08em"
+                  textTransform="uppercase"
+                  color="text.secondary"
+                >
+                  {role === "recruiter" ? "Recrutador" : "Candidato"}
+                </Typography>
+              </Stack>
               {role === "recruiter" && company && (
                 <Stack
                   direction="row"
@@ -154,19 +181,29 @@ export function AppShell() {
                   key={item.path}
                   component={NavLink}
                   to={item.path}
-                  startIcon={item.icon}
+                  startIcon={
+                    item.path === "/matches" && newMatchCount > 0 ? (
+                      <Badge badgeContent={newMatchCount} color="secondary">
+                        {item.icon}
+                      </Badge>
+                    ) : (
+                      item.icon
+                    )
+                  }
                   size="small"
+                  disableRipple
                   sx={{
                     color: "text.secondary",
                     fontWeight: 700,
-                    borderRadius: 2,
-                    px: 2,
+                    borderRadius: 0,
+                    px: 1.5,
+                    py: 0.75,
+                    borderBottom: "2px solid transparent",
                     "&.active": {
-                      color: "#00d3b0",
-                      bgcolor: "rgba(0,211,176,0.08)",
-                      boxShadow: "inset 0 0 0 1px rgba(0,211,176,0.3)",
+                      color: isDark ? "#fff" : "text.primary",
+                      borderBottomColor: "#22D3EE",
                     },
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
+                    "&:hover": { color: isDark ? "#fff" : "text.primary" },
                   }}
                 >
                   {item.label}
@@ -195,6 +232,14 @@ export function AppShell() {
                   </Button>
                 </Tooltip>
               )}
+
+              <Tooltip title="Meu perfil">
+                <IconButton onClick={() => navigate("/profile")} size="small" sx={{ mx: 0.5 }}>
+                  <Avatar src={currentUser?.avatar} sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: "primary.main" }}>
+                    {currentUser?.name?.[0]?.toUpperCase()}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
 
               <Tooltip title={isDark ? "Modo Claro" : "Modo Escuro"}>
                 <IconButton

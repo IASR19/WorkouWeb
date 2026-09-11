@@ -5,8 +5,9 @@ import StarIcon from '@mui/icons-material/Star';
 import WorkIcon from '@mui/icons-material/Work';
 import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { Avatar, Box, Chip, Dialog, DialogContent, DialogTitle, Divider, IconButton, Stack, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Dialog, DialogContent, DialogTitle, Divider, IconButton, Stack, ThemeProvider, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { darkTheme } from '../../theme/theme';
 
 interface Experience {
   role: string;
@@ -67,11 +68,12 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
   const linkedinLink = candidate.links?.find(l => l.includes('linkedin'));
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { background: 'rgba(6,19,39,0.97)', border: '1px solid rgba(0,211,176,0.2)' } }}>
+    <ThemeProvider theme={darkTheme}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { background: 'rgba(6,19,39,0.97)', border: '1px solid rgba(34,211,238,0.2)' } }}>
       <DialogTitle sx={{ p: 0 }}>
         <Box
           sx={{
-            background: 'linear-gradient(135deg, rgba(124,77,255,0.15), rgba(0,211,176,0.10))',
+            background: 'linear-gradient(135deg, rgba(91,61,245,0.15), rgba(34,211,238,0.10))',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
             p: 3,
             display: 'flex',
@@ -84,10 +86,10 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
             sx={{
               width: 80,
               height: 80,
-              background: 'linear-gradient(135deg, #7c4dff, #00d3b0)',
+              bgcolor: '#5B3DF5',
               fontSize: '1.6rem',
               fontWeight: 900,
-              border: '3px solid #00d3b0',
+              border: '3px solid #22D3EE',
               flexShrink: 0
             }}
           >
@@ -166,7 +168,7 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
             <Typography variant="subtitle1" fontWeight={800} mb={1.5}>Skills</Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
               {candidate.skills.map(skill => (
-                <Chip key={skill} label={skill} size="small" sx={{ bgcolor: 'rgba(0,211,176,0.12)', color: '#00d3b0', border: '1px solid rgba(0,211,176,0.2)' }} />
+                <Chip key={skill} label={skill} size="small" sx={{ bgcolor: 'rgba(34,211,238,0.12)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.2)' }} />
               ))}
             </Stack>
           </Box>
@@ -185,8 +187,8 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
               {experience.map((exp, idx) => (
                 <Box key={idx} sx={{ display: 'flex', gap: 2 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 0.5 }}>
-                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#00d3b0', flexShrink: 0 }} />
-                    {idx < experience.length - 1 && <Box sx={{ width: 2, flex: 1, bgcolor: 'rgba(0,211,176,0.2)', mt: 0.5 }} />}
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#22D3EE', flexShrink: 0 }} />
+                    {idx < experience.length - 1 && <Box sx={{ width: 2, flex: 1, bgcolor: 'rgba(34,211,238,0.2)', mt: 0.5 }} />}
                   </Box>
                   <Box flex={1} pb={idx < experience.length - 1 ? 2 : 0}>
                     <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
@@ -258,5 +260,6 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
         )}
       </DialogContent>
     </Dialog>
+    </ThemeProvider>
   );
 }

@@ -4,14 +4,16 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import StarIcon from '@mui/icons-material/Star';
+import LockIcon from '@mui/icons-material/Lock';
 import {
   Alert, Box, Button, Card, CardContent, Chip, CircularProgress,
-  Divider, Grid, IconButton, Stack, TextField, Typography
+  Divider, Grid, IconButton, Stack, TextField, Typography, ThemeProvider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import { WorkouLogoMark } from '../../components/WorkouLogo/WorkouLogo';
 import { api } from '../../services/api';
+import { darkTheme } from '../../theme/theme';
 
 type Role = 'recruiter' | 'candidate';
 type Step = 'role' | 'personal' | 'company' | 'plan' | 'payment';
@@ -116,24 +118,23 @@ export function RegisterPage() {
 
   const logoArea = (
     <Stack alignItems="center" spacing={1} mb={4}>
-      <Box sx={{ filter: 'drop-shadow(0 0 20px rgba(124,77,255,0.5))' }}>
-        <WorkouLogoMark size={64} />
-      </Box>
+      <WorkouLogoMark size={64} />
       <Typography variant="h4" fontWeight={900} letterSpacing="-0.02em">
         <Box component="span" color="white">Work</Box>
-        <Box component="span" color="#00d3b0">ou</Box>
+        <Box component="span" color="#22D3EE">ou</Box>
       </Typography>
     </Stack>
   );
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       minHeight="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
       sx={{
-        background: 'radial-gradient(circle at 10% 0%, rgba(124,77,255,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.18), transparent 32%), #061327',
+        bgcolor: '#0B1220',
         p: 3
       }}
     >
@@ -149,11 +150,11 @@ export function RegisterPage() {
             <Stack spacing={2}>
               <Card
                 onClick={() => { setRole('recruiter'); setStep('personal'); }}
-                sx={{ cursor: 'pointer', border: '2px solid rgba(124,77,255,0.3)', transition: 'all 0.2s', '&:hover': { border: '2px solid #7c4dff', boxShadow: '0 0 24px rgba(124,77,255,0.3)' } }}
+                sx={{ cursor: 'pointer', border: '2px solid rgba(91,61,245,0.3)', transition: 'border-color 0.2s', '&:hover': { borderColor: '#5B3DF5' } }}
               >
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
-                    <Box sx={{ width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #7c4dff, #5b2de8)', flexShrink: 0 }}>
+                    <Box sx={{ width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: '#5B3DF5', flexShrink: 0 }}>
                       <BusinessCenterIcon sx={{ fontSize: 30, color: '#fff' }} />
                     </Box>
                     <Box>
@@ -166,11 +167,11 @@ export function RegisterPage() {
 
               <Card
                 onClick={() => { setRole('candidate'); setStep('personal'); }}
-                sx={{ cursor: 'pointer', border: '2px solid rgba(0,211,176,0.3)', transition: 'all 0.2s', '&:hover': { border: '2px solid #00d3b0', boxShadow: '0 0 24px rgba(0,211,176,0.3)' } }}
+                sx={{ cursor: 'pointer', border: '2px solid rgba(34,211,238,0.3)', transition: 'border-color 0.2s', '&:hover': { borderColor: '#22D3EE' } }}
               >
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
-                    <Box sx={{ width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #00d3b0, #009e84)', flexShrink: 0 }}>
+                    <Box sx={{ width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: '#0EA5C4', flexShrink: 0 }}>
                       <PersonSearchIcon sx={{ fontSize: 30, color: '#fff' }} />
                     </Box>
                     <Box>
@@ -191,7 +192,7 @@ export function RegisterPage() {
 
         {/* STEP: PERSONAL */}
         {step === 'personal' && (
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={3}>
                 <IconButton onClick={() => setStep('role')} size="small"><ArrowBackIcon /></IconButton>
@@ -217,7 +218,7 @@ export function RegisterPage() {
                     if (role === 'recruiter') setStep('company'); else handleSubmit();
                   }}
                   disabled={loading}
-                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', fontWeight: 800, py: 1.5 }}
+                  sx={{ background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)', fontWeight: 800, py: 1.5 }}
                 >
                   {loading ? <CircularProgress size={24} color="inherit" /> : role === 'recruiter' ? 'Continuar →' : 'Criar conta'}
                 </Button>
@@ -228,7 +229,7 @@ export function RegisterPage() {
 
         {/* STEP: COMPANY */}
         {step === 'company' && (
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={3}>
                 <IconButton onClick={() => setStep('personal')} size="small"><ArrowBackIcon /></IconButton>
@@ -271,7 +272,7 @@ export function RegisterPage() {
                     setError('');
                     setStep('plan');
                   }}
-                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #5b2de8)', fontWeight: 800, py: 1.5 }}
+                  sx={{ background: 'linear-gradient(135deg, #5B3DF5, #4C2FE0)', fontWeight: 800, py: 1.5 }}
                 >
                   Escolher plano →
                 </Button>
@@ -300,12 +301,11 @@ export function RegisterPage() {
                       cursor: 'pointer',
                       height: '100%',
                       border: selectedPlan === p.id
-                        ? '2px solid #7c4dff'
-                        : p.highlight ? '2px solid rgba(0,211,176,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: selectedPlan === p.id ? '0 0 24px rgba(124,77,255,0.4)' : p.highlight ? '0 0 16px rgba(0,211,176,0.15)' : 'none',
-                      transition: 'all 0.2s',
+                        ? '2px solid #5B3DF5'
+                        : p.highlight ? '2px solid rgba(34,211,238,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      transition: 'border-color 0.2s',
                       position: 'relative',
-                      '&:hover': { borderColor: '#7c4dff', boxShadow: '0 0 20px rgba(124,77,255,0.3)' }
+                      '&:hover': { borderColor: '#5B3DF5' }
                     }}
                   >
                     {p.highlight && (
@@ -313,12 +313,12 @@ export function RegisterPage() {
                         icon={<StarIcon sx={{ fontSize: '12px !important' }} />}
                         label="Mais popular"
                         size="small"
-                        sx={{ position: 'absolute', top: 12, right: 12, bgcolor: 'rgba(0,211,176,0.15)', color: '#00d3b0', fontSize: '0.65rem', fontWeight: 800 }}
+                        sx={{ position: 'absolute', top: 12, right: 12, bgcolor: 'rgba(34,211,238,0.15)', color: '#22D3EE', fontSize: '0.65rem', fontWeight: 800 }}
                       />
                     )}
                     <CardContent sx={{ p: 2.5 }}>
                       <Typography variant="subtitle1" fontWeight={800} mb={0.5}>{p.label}</Typography>
-                      <Typography variant="h5" fontWeight={900} color={p.highlight ? '#00d3b0' : 'white'} mb={0.5}>
+                      <Typography variant="h5" fontWeight={900} color={p.highlight ? '#22D3EE' : 'white'} mb={0.5}>
                         R$ {p.price.toLocaleString('pt-BR')}
                         <Typography component="span" variant="body2" color="text.secondary" fontWeight={400}>/mês</Typography>
                       </Typography>
@@ -329,7 +329,7 @@ export function RegisterPage() {
                       <Stack spacing={0.5}>
                         {p.extras.map(feat => (
                           <Stack key={feat} direction="row" spacing={0.5} alignItems="center">
-                            <CheckIcon sx={{ fontSize: 14, color: '#00d3b0' }} />
+                            <CheckIcon sx={{ fontSize: 14, color: '#22D3EE' }} />
                             <Typography variant="body2" fontSize="0.75rem" color="text.secondary">{feat}</Typography>
                           </Stack>
                         ))}
@@ -340,7 +340,7 @@ export function RegisterPage() {
               ))}
             </Grid>
 
-            <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+            <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
@@ -352,7 +352,7 @@ export function RegisterPage() {
                   <Button
                     variant="contained"
                     onClick={() => setStep('payment')}
-                    sx={{ background: 'linear-gradient(135deg, #7c4dff, #5b2de8)', fontWeight: 800, px: 3 }}
+                    sx={{ background: 'linear-gradient(135deg, #5B3DF5, #4C2FE0)', fontWeight: 800, px: 3 }}
                   >
                     Ir para pagamento →
                   </Button>
@@ -364,7 +364,7 @@ export function RegisterPage() {
 
         {/* STEP: PAYMENT */}
         {step === 'payment' && (
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                 <IconButton onClick={() => setStep('plan')} size="small"><ArrowBackIcon /></IconButton>
@@ -375,11 +375,11 @@ export function RegisterPage() {
               </Alert>
 
               <Stack spacing={2.5}>
-                <Box sx={{ p: 2, border: '1px solid rgba(124,77,255,0.2)', borderRadius: 2, background: 'rgba(124,77,255,0.05)' }}>
+                <Box sx={{ p: 2, border: '1px solid rgba(91,61,245,0.2)', borderRadius: 2, background: 'rgba(91,61,245,0.05)' }}>
                   <Typography variant="body2" color="text.secondary" mb={0.5}>Resumo do pedido</Typography>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography fontWeight={700}>Workou {plan.label} — Mensal</Typography>
-                    <Typography fontWeight={900} color="#00d3b0">R$ {plan.price.toLocaleString('pt-BR')}</Typography>
+                    <Typography fontWeight={900} color="#22D3EE">R$ {plan.price.toLocaleString('pt-BR')}</Typography>
                   </Stack>
                   <Typography variant="caption" color="text.secondary">
                     Empresa: {companyName} · {plan.seats === -1 ? 'Ilimitado' : `${plan.seats} seat${plan.seats > 1 ? 's' : ''}`} · {plan.jobs === -1 ? 'Vagas ilimitadas' : `${plan.jobs} vagas/mês`}
@@ -436,21 +436,25 @@ export function RegisterPage() {
                     setError('');
                     handleSubmit();
                   }}
-                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', fontWeight: 800, py: 1.5, fontSize: '1rem' }}
+                  sx={{ background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)', fontWeight: 800, py: 1.5, fontSize: '1rem' }}
                 >
                   {loading
                     ? <><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} /> Processando...</>
                     : `Pagar R$ ${plan.price.toLocaleString('pt-BR')} e criar conta`}
                 </Button>
 
-                <Typography variant="caption" color="text.secondary" textAlign="center">
-                  🔒 Pagamento 100% seguro e criptografado (simulação)
-                </Typography>
+                <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                  <LockIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography variant="caption" color="text.secondary" textAlign="center">
+                    Pagamento 100% seguro e criptografado (simulação)
+                  </Typography>
+                </Stack>
               </Stack>
             </CardContent>
           </Card>
         )}
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }

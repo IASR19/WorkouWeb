@@ -2,8 +2,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import BusinessIcon from '@mui/icons-material/Business';
 import PersonIcon from '@mui/icons-material/Person';
 import ForumIcon from '@mui/icons-material/Forum';
-import { Box, Button, Modal, Typography, Fade, Backdrop } from '@mui/material';
+import { Box, Button, Modal, Typography, Fade, Backdrop, ThemeProvider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { darkTheme } from '../../theme/theme';
 
 interface DeuMatchModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
   };
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Modal
       open={open}
       onClose={onClose}
@@ -52,11 +54,11 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
                 width: 96,
                 height: 96,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #7c4dff, #5b2de8)',
+                background: 'linear-gradient(135deg, #5B3DF5, #4C2FE0)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 30px rgba(124,77,255,0.6)',
+                boxShadow: '0 0 30px rgba(91,61,245,0.6)',
                 animation: 'slideInLeft 0.5s ease-out'
               }}
             >
@@ -70,11 +72,11 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
                 width: 96,
                 height: 96,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #00d3b0, #009e84)',
+                background: 'linear-gradient(135deg, #22D3EE, #0EA5C4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 30px rgba(0,211,176,0.6)',
+                boxShadow: '0 0 30px rgba(34,211,238,0.6)',
                 animation: 'slideInRight 0.5s ease-out'
               }}
             >
@@ -103,7 +105,7 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
             </Box>
           </Box>
 
-          <Typography variant="h3" fontWeight={900} sx={{ background: 'linear-gradient(90deg, #7c4dff, #00d3b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 1 }}>
+          <Typography variant="h3" fontWeight={900} sx={{ background: 'linear-gradient(90deg, #5B3DF5, #22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 1 }}>
             Deu Match!
           </Typography>
           <Typography variant="body1" color="text.secondary" mb={1}>
@@ -111,8 +113,8 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
           </Typography>
           {(candidateName || jobTitle) && (
             <Typography variant="body2" color="text.secondary" mb={3}>
-              {candidateName && <><strong style={{ color: '#00d3b0' }}>{candidateName}</strong>{' '}</>}
-              {jobTitle && <>e <strong style={{ color: '#7c4dff' }}>{jobTitle}</strong></>}
+              {candidateName && <><strong style={{ color: '#22D3EE' }}>{candidateName}</strong>{' '}</>}
+              {jobTitle && <>e <strong style={{ color: '#5B3DF5' }}>{jobTitle}</strong></>}
             </Typography>
           )}
 
@@ -125,12 +127,12 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
               px: 3,
               py: 1.5,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, rgba(124,77,255,0.2), rgba(0,211,176,0.2))',
-              border: '1px solid rgba(0,211,176,0.4)',
+              background: 'linear-gradient(135deg, rgba(91,61,245,0.2), rgba(34,211,238,0.2))',
+              border: '1px solid rgba(34,211,238,0.4)',
               mb: 4
             }}
           >
-            <ForumIcon sx={{ color: '#00d3b0' }} />
+            <ForumIcon sx={{ color: '#22D3EE' }} />
             <Box textAlign="left">
               <Typography variant="subtitle2" fontWeight={800} color="#fff">Chat Liberado!</Typography>
               <Typography variant="caption" color="text.secondary">O canal está aberto. Converse agora mesmo!</Typography>
@@ -144,7 +146,7 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
               onClick={handleGoToChat}
               startIcon={<ForumIcon />}
               sx={{
-                background: 'linear-gradient(135deg, #7c4dff, #00d3b0)',
+                background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)',
                 fontWeight: 800,
                 px: 4,
                 py: 1.5,
@@ -165,5 +167,6 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
         </Box>
       </Fade>
     </Modal>
+    </ThemeProvider>
   );
 }

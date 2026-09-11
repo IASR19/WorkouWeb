@@ -92,13 +92,13 @@ export function MatchesPage() {
       <Grid size={{ xs: 12, md: 4 }}>
         <Stack spacing={2}>
           <Box>
-            <Typography variant="h4" fontWeight={900} sx={{ background: 'linear-gradient(45deg, #7c4dff, #00d3b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <Typography variant="h4" fontWeight={900}>
               Seus Matches
             </Typography>
             <Typography variant="body1" color="text.secondary" mb={2}>O interesse é mútuo. A conversa começa agora.</Typography>
           </Box>
           
-          <Card sx={{ border: '1px solid rgba(124,77,255,0.15)', bgcolor: 'rgba(6, 19, 39, 0.4)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.15)', bgcolor: 'rgba(6, 19, 39, 0.4)' }}>
             <CardContent sx={{ p: 0 }}>
               {conversations.length > 0 ? (
                 <List sx={{ p: 0 }}>
@@ -120,8 +120,8 @@ export function MatchesPage() {
                             sx={{
                               py: 2,
                               '&.Mui-selected': {
-                                bgcolor: 'rgba(124,77,255,0.15)',
-                                borderLeft: '4px solid #7c4dff',
+                                bgcolor: 'rgba(91,61,245,0.15)',
+                                borderLeft: '4px solid #5B3DF5',
                               }
                             }}
                           >
@@ -161,7 +161,7 @@ export function MatchesPage() {
               display: 'flex', 
               flexDirection: 'column', 
               justifyContent: 'space-between',
-              border: '1px solid rgba(0,211,176,0.15)',
+              border: '1px solid rgba(34,211,238,0.15)',
               background: 'linear-gradient(180deg, rgba(6, 19, 39, 0.7), rgba(6, 19, 39, 0.95))'
             }}
           >
@@ -184,9 +184,9 @@ export function MatchesPage() {
                       sx={{ 
                         alignSelf: isMine ? 'flex-end' : 'flex-start',
                         maxWidth: '75%',
-                        bgcolor: isMine ? 'rgba(124,77,255,0.2)' : 'rgba(0,211,176,0.15)',
+                        bgcolor: isMine ? 'rgba(91,61,245,0.2)' : 'rgba(34,211,238,0.15)',
                         border: '1px solid',
-                        borderColor: isMine ? 'rgba(124,77,255,0.3)' : 'rgba(0,211,176,0.3)',
+                        borderColor: isMine ? 'rgba(91,61,245,0.3)' : 'rgba(34,211,238,0.3)',
                         borderRadius: 2,
                         p: 2
                       }}
@@ -230,7 +230,7 @@ export function MatchesPage() {
                     color="secondary"
                     endIcon={<SendIcon />}
                     sx={{
-                      background: 'linear-gradient(135deg, #7c4dff, #00d3b0)',
+                      background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)',
                       px: 3,
                       fontWeight: 800
                     }}

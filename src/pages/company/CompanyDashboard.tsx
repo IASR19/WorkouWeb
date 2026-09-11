@@ -31,8 +31,8 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  essencial: { label: "Essencial", color: "#7c4dff" },
-  pro: { label: "Pro", color: "#00d3b0" },
+  essencial: { label: "Essencial", color: "#5B3DF5" },
+  pro: { label: "Pro", color: "#22D3EE" },
   business: { label: "Business", color: "#ffc107" },
   enterprise: { label: "Enterprise", color: "#ff5d73" },
 };
@@ -126,7 +126,7 @@ export function CompanyDashboard() {
   if (currentUser?.role !== "recruiter") {
     return (
       <Box maxWidth={560} mx="auto" mt={6} textAlign="center">
-        <Card sx={{ p: 4, border: "1px solid rgba(124,77,255,0.3)" }}>
+        <Card sx={{ p: 4, border: "1px solid rgba(91,61,245,0.3)" }}>
           <CardContent>
             <Typography variant="h5" fontWeight={900} mb={2}>
               Acesso restrito
@@ -151,7 +151,7 @@ export function CompanyDashboard() {
   if (!company) {
     return (
       <Box maxWidth={560} mx="auto" mt={6} textAlign="center">
-        <Card sx={{ p: 4, border: "1px solid rgba(124,77,255,0.3)" }}>
+        <Card sx={{ p: 4, border: "1px solid rgba(91,61,245,0.3)" }}>
           <CardContent>
             <Typography variant="h5" fontWeight={900} mb={2}>
               Empresa não encontrada
@@ -163,7 +163,7 @@ export function CompanyDashboard() {
               variant="contained"
               onClick={() => navigate("/register")}
               sx={{
-                background: "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                background: "linear-gradient(135deg,#5B3DF5,#22D3EE)",
                 fontWeight: 800,
               }}
             >
@@ -191,8 +191,8 @@ export function CompanyDashboard() {
     px: 2.5,
     borderRadius: 2,
     fontWeight: tab === t ? 800 : 500,
-    bgcolor: tab === t ? "rgba(124,77,255,0.15)" : "transparent",
-    color: tab === t ? "#7c4dff" : "text.secondary",
+    bgcolor: tab === t ? "rgba(91,61,245,0.15)" : "transparent",
+    color: tab === t ? "primary.main" : "text.secondary",
     cursor: "pointer",
     transition: "all 0.15s",
   });
@@ -213,7 +213,7 @@ export function CompanyDashboard() {
                 width: 44,
                 height: 44,
                 borderRadius: 2,
-                background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                bgcolor: "#5B3DF5",
                 display: "grid",
                 placeItems: "center",
               }}
@@ -250,7 +250,7 @@ export function CompanyDashboard() {
             size="small"
             startIcon={<StarIcon />}
             onClick={() => navigate("/plans")}
-            sx={{ borderColor: "#7c4dff", color: "#7c4dff", fontWeight: 700 }}
+            sx={{ borderColor: "primary.main", color: "primary.main", fontWeight: 700 }}
           >
             Upgrade de plano
           </Button>
@@ -260,10 +260,10 @@ export function CompanyDashboard() {
       {/* Quick stats */}
       <Grid container spacing={2} mb={3}>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ border: "1px solid rgba(124,77,255,0.15)" }}>
+          <Card sx={{ border: "1px solid rgba(91,61,245,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <PeopleIcon sx={{ color: "#7c4dff", fontSize: 28 }} />
+                <PeopleIcon sx={{ color: "primary.main", fontSize: 28 }} />
                 <Box>
                   <Typography variant="h5" fontWeight={900}>
                     {activeSeats} / {totalSeats === 9999 ? "∞" : totalSeats}
@@ -277,10 +277,10 @@ export function CompanyDashboard() {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ border: "1px solid rgba(0,211,176,0.15)" }}>
+          <Card sx={{ border: "1px solid rgba(34,211,238,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <WorkIcon sx={{ color: "#00d3b0", fontSize: 28 }} />
+                <WorkIcon sx={{ color: "secondary.main", fontSize: 28 }} />
                 <Box>
                   <Typography variant="h5" fontWeight={900}>
                     {jobsLeft === 9999 ? "∞" : jobsLeft} restantes
@@ -330,7 +330,7 @@ export function CompanyDashboard() {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Card
-              sx={{ border: "1px solid rgba(124,77,255,0.15)", height: "100%" }}
+              sx={{ border: "1px solid rgba(91,61,245,0.15)", height: "100%" }}
             >
               <CardContent>
                 <Typography variant="subtitle1" fontWeight={800} mb={2}>
@@ -383,7 +383,7 @@ export function CompanyDashboard() {
                     fullWidth
                     onClick={() => navigate("/plans")}
                     sx={{
-                      background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                      background: "linear-gradient(135deg,#5B3DF5,#4C2FE0)",
                       fontWeight: 800,
                     }}
                   >
@@ -395,7 +395,7 @@ export function CompanyDashboard() {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Card
-              sx={{ border: "1px solid rgba(0,211,176,0.15)", height: "100%" }}
+              sx={{ border: "1px solid rgba(34,211,238,0.15)", height: "100%" }}
             >
               <CardContent>
                 <Stack
@@ -415,7 +415,7 @@ export function CompanyDashboard() {
                         setTab("seats");
                         setAddSeatOpen(true);
                       }}
-                      sx={{ color: "#00d3b0", fontWeight: 700 }}
+                      sx={{ color: "secondary.main", fontWeight: 700 }}
                     >
                       Adicionar
                     </Button>
@@ -436,8 +436,7 @@ export function CompanyDashboard() {
                           sx={{
                             width: 32,
                             height: 32,
-                            background:
-                              "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                            bgcolor: "#5B3DF5",
                             fontSize: "0.8rem",
                             fontWeight: 900,
                           }}
@@ -467,11 +466,11 @@ export function CompanyDashboard() {
                             fontSize: "0.65rem",
                             bgcolor:
                               s.companyRole === "owner"
-                                ? "rgba(124,77,255,0.15)"
+                                ? "rgba(91,61,245,0.15)"
                                 : "rgba(255,255,255,0.05)",
                             color:
                               s.companyRole === "owner"
-                                ? "#7c4dff"
+                                ? "primary.main"
                                 : "text.secondary",
                           }}
                         />
@@ -519,7 +518,7 @@ export function CompanyDashboard() {
                   setAddSeatOpen(true);
                 }}
                 sx={{
-                  background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                  background: "linear-gradient(135deg,#5B3DF5,#4C2FE0)",
                   fontWeight: 800,
                 }}
               >
@@ -556,7 +555,7 @@ export function CompanyDashboard() {
                         sx={{
                           width: 40,
                           height: 40,
-                          background: "linear-gradient(135deg,#7c4dff,#00d3b0)",
+                          bgcolor: "#5B3DF5",
                           fontWeight: 900,
                         }}
                       >
@@ -578,10 +577,10 @@ export function CompanyDashboard() {
                         sx={{
                           bgcolor:
                             s.companyRole === "owner"
-                              ? "rgba(124,77,255,0.15)"
-                              : "rgba(0,211,176,0.1)",
+                              ? "rgba(91,61,245,0.15)"
+                              : "rgba(34,211,238,0.1)",
                           color:
-                            s.companyRole === "owner" ? "#7c4dff" : "#00d3b0",
+                            s.companyRole === "owner" ? "#5B3DF5" : "#22D3EE",
                           fontWeight: 700,
                         }}
                       />
@@ -672,7 +671,7 @@ export function CompanyDashboard() {
                     onClick={handleAddSeat}
                     disabled={seatLoading}
                     sx={{
-                      background: "linear-gradient(135deg,#7c4dff,#5b2de8)",
+                      background: "linear-gradient(135deg,#5B3DF5,#4C2FE0)",
                       fontWeight: 800,
                     }}
                   >
@@ -724,10 +723,10 @@ export function CompanyDashboard() {
                           borderRadius: "50%",
                           display: "grid",
                           placeItems: "center",
-                          bgcolor: "rgba(0,211,176,0.1)",
+                          bgcolor: "rgba(34,211,238,0.1)",
                         }}
                       >
-                        <ReceiptIcon sx={{ color: "#00d3b0", fontSize: 18 }} />
+                        <ReceiptIcon sx={{ color: "secondary.main", fontSize: 18 }} />
                       </Box>
                       <Box flex={1}>
                         <Typography variant="body2" fontWeight={700}>
@@ -748,7 +747,7 @@ export function CompanyDashboard() {
                         </Stack>
                       </Box>
                       <Box textAlign="right">
-                        <Typography fontWeight={900} color="#00d3b0">
+                        <Typography fontWeight={900} color="secondary.main">
                           R${" "}
                           {Number(b.amount).toLocaleString("pt-BR", {
                             minimumFractionDigits: 2,

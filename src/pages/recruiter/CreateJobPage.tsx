@@ -1,19 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import WorkIcon from '@mui/icons-material/Work';
 import {
   Alert, Box, Button, Card, CardContent, Chip, CircularProgress,
-  FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography
+  FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography, ThemeProvider
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
+import { WorkouLogoMark } from '../../components/WorkouLogo/WorkouLogo';
+import { darkTheme } from '../../theme/theme';
 
 const workModels = ['Remote', 'Hybrid', 'Onsite'];
 const seniorities = ['Estágio', 'Júnior', 'Pleno', 'Sênior', 'Especialista'];
 
 export function CreateJobPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditing = !!editId;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [skillInput, setSkillInput] = useState('');
@@ -25,6 +29,20 @@ export function CreateJobPage() {
   const [salaryMax, setSalaryMax] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!editId) return;
+    api.getJob(editId).then(job => {
+      setTitle(job.title ?? '');
+      setDescription(job.description ?? '');
+      setSkills(job.requiredSkills ?? []);
+      setWorkModel(job.workModel ?? 'Remote');
+      setLocation(job.location ?? '');
+      setSeniority(job.seniority ?? 'Pleno');
+      setSalaryMin(job.salaryMin ? String(job.salaryMin) : '');
+      setSalaryMax(job.salaryMax ? String(job.salaryMax) : '');
+    }).catch(() => setError('Não foi possível carregar a vaga.'));
+  }, [editId]);
 
   const addSkill = () => {
     const s = skillInput.trim();
@@ -40,49 +58,53 @@ export function CreateJobPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const payload = {
+      title,
+      description,
+      requiredSkills: skills,
+      workModel,
+      location,
+      seniority,
+      salaryMin: salaryMin ? parseInt(salaryMin) : undefined,
+      salaryMax: salaryMax ? parseInt(salaryMax) : undefined
+    };
     try {
-      await api.createJob({
-        title,
-        description,
-        requiredSkills: skills,
-        workModel,
-        location,
-        seniority,
-        salaryMin: salaryMin ? parseInt(salaryMin) : undefined,
-        salaryMax: salaryMax ? parseInt(salaryMax) : undefined
-      });
+      if (isEditing) {
+        await api.updateJob(editId, payload);
+      } else {
+        await api.createJob(payload);
+      }
       navigate('/recruiter');
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Erro ao criar vaga. Tente novamente.');
+      setError(err?.response?.data?.message ?? 'Erro ao salvar vaga. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       minHeight="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
       sx={{
-        background: 'radial-gradient(circle at 10% 0%, rgba(124,77,255,0.22), transparent 38%), radial-gradient(circle at 95% 15%, rgba(0,211,176,0.18), transparent 32%), #061327',
+        bgcolor: '#0B1220',
         p: 3
       }}
     >
       <Box width="100%" maxWidth={600}>
         {/* Header */}
         <Stack alignItems="center" spacing={2} mb={4}>
-          <Box sx={{ width: 64, height: 64, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', boxShadow: '0 0 30px rgba(124,77,255,0.4)' }}>
-            <BusinessCenterIcon sx={{ fontSize: 34 }} />
-          </Box>
+          <WorkouLogoMark size={64} />
           <Box textAlign="center">
-            <Typography variant="h5" fontWeight={900}>Criar sua primeira vaga</Typography>
+            <Typography variant="h5" fontWeight={900}>{isEditing ? 'Editar vaga' : 'Criar sua primeira vaga'}</Typography>
             <Typography color="text.secondary">A IA irá estruturar os requisitos e já começar o matching.</Typography>
           </Box>
         </Stack>
 
-        <Card sx={{ border: '1px solid rgba(124,77,255,0.2)' }}>
+        <Card sx={{ border: '1px solid rgba(91,61,245,0.2)' }}>
           <CardContent sx={{ p: 4 }}>
             <form onSubmit={handleSubmit}>
               <Stack spacing={3}>
@@ -126,7 +148,7 @@ export function CreateJobPage() {
                   {skills.length > 0 && (
                     <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
                       {skills.map(s => (
-                        <Chip key={s} label={s} onDelete={() => removeSkill(s)} size="small" sx={{ bgcolor: 'rgba(0,211,176,0.1)', color: '#00d3b0' }} />
+                        <Chip key={s} label={s} onDelete={() => removeSkill(s)} size="small" sx={{ bgcolor: 'rgba(34,211,238,0.1)', color: '#22D3EE' }} />
                       ))}
                     </Stack>
                   )}
@@ -183,13 +205,15 @@ export function CreateJobPage() {
                   fullWidth
                   disabled={loading}
                   startIcon={loading ? undefined : <WorkIcon />}
-                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #00d3b0)', fontWeight: 800, py: 1.5 }}
+                  sx={{ background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)', fontWeight: 800, py: 1.5 }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Publicar vaga e começar triagem'}
+                  {loading
+                    ? <CircularProgress size={24} color="inherit" />
+                    : isEditing ? 'Salvar alterações' : 'Publicar vaga e começar triagem'}
                 </Button>
 
                 <Button variant="text" color="inherit" onClick={() => navigate('/recruiter')} sx={{ color: 'text.secondary' }}>
-                  Pular por agora
+                  {isEditing ? 'Cancelar' : 'Pular por agora'}
                 </Button>
               </Stack>
             </form>
@@ -197,5 +221,6 @@ export function CreateJobPage() {
         </Card>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }
