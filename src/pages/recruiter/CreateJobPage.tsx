@@ -105,6 +105,7 @@ export function CreateJobPage() {
       justifyContent="center"
       sx={{
         bgcolor: '#0B1220',
+        color: '#fff',
         p: 3
       }}
     >

@@ -201,9 +201,10 @@ export function CompanyDashboard() {
     <Box maxWidth={960} mx="auto">
       {/* Header */}
       <Stack
-        direction="row"
+        direction={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
-        alignItems="flex-start"
+        alignItems={{ xs: "stretch", sm: "flex-start" }}
+        gap={2}
         mb={3}
       >
         <Box>
@@ -313,7 +314,7 @@ export function CompanyDashboard() {
       </Grid>
 
       {/* Tabs */}
-      <Stack direction="row" spacing={1} mb={3}>
+      <Stack direction="row" spacing={1} mb={3} flexWrap="wrap" rowGap={1}>
         <Box sx={tabStyle("overview")} onClick={() => setTab("overview")}>
           Visão geral
         </Box>

@@ -11,7 +11,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Box, Button, Card, CardContent, Chip, Grid, IconButton,
-  Stack, Typography, Avatar, Dialog, DialogContent, DialogTitle, TextField
+  Stack, Typography, Avatar, Dialog, DialogContent, DialogTitle, TextField, ThemeProvider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,6 +19,7 @@ import { api } from '../../services/api';
 import { CardStack } from '../../components/CardStack/CardStack';
 import { DeuMatchModal } from '../../components/DeuMatch/DeuMatchModal';
 import { ResumeModal } from '../../components/ResumeModal/ResumeModal';
+import { darkTheme } from '../../theme/theme';
 
 function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
   const job = match.job;
@@ -26,9 +27,11 @@ function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
   const isFeatured = score >= 90;
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       sx={{
         height: '100%',
+        color: '#fff',
         background: 'linear-gradient(160deg, rgba(13,28,51,0.95), rgba(6,19,39,0.98))',
         p: 3,
         display: 'flex',
@@ -103,6 +106,7 @@ function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
         </Typography>
       )}
     </Box>
+    </ThemeProvider>
   );
 }
 

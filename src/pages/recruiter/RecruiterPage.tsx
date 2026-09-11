@@ -26,6 +26,7 @@ import {
   MenuItem,
   Select,
   Stack,
+  ThemeProvider,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -36,6 +37,7 @@ import { MetricCard } from "../../shared/ui/MetricCard";
 import { CardStack } from "../../components/CardStack/CardStack";
 import { DeuMatchModal } from "../../components/DeuMatch/DeuMatchModal";
 import { ResumeModal } from "../../components/ResumeModal/ResumeModal";
+import { darkTheme } from "../../theme/theme";
 
 function getInitials(name?: string) {
   if (!name) return "P";
@@ -60,10 +62,12 @@ function CandidateCard({
   const score = match.score;
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <Box
       onClick={isActive ? onClick : undefined}
       sx={{
         height: "100%",
+        color: "#fff",
         background:
           "linear-gradient(160deg, rgba(13,28,51,0.95), rgba(6,19,39,0.98))",
         p: 3,
@@ -178,6 +182,7 @@ function CandidateCard({
         </Typography>
       )}
     </Box>
+    </ThemeProvider>
   );
 }
 
@@ -373,9 +378,9 @@ export function RecruiterPage() {
             Triagem em segundos com mecânica intuitiva.
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" rowGap={1.5}>
           {jobs.length > 0 ? (
-            <FormControl sx={{ minWidth: 240 }}>
+            <FormControl sx={{ minWidth: { xs: "100%", sm: 240 } }}>
               <InputLabel>Vaga em Triagem</InputLabel>
               <Select
                 value={selectedJobId}
@@ -390,63 +395,65 @@ export function RecruiterPage() {
               </Select>
             </FormControl>
           ) : null}
-          {currentJob && (
-            <Stack direction="row" spacing={0.5}>
-              <Tooltip title="Editar vaga">
-                <IconButton size="small" onClick={() => navigate(`/recruiter/create-job?edit=${currentJob.id}`)}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={currentJob.status === "paused" ? "Reabrir vaga" : "Pausar vaga"}>
-                <IconButton size="small" onClick={() => handleToggleJobStatus(currentJob.id, currentJob.status)}>
-                  {currentJob.status === "paused" ? <PlayArrowIcon fontSize="small" /> : <PauseIcon fontSize="small" />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Excluir vaga">
-                <IconButton size="small" color="error" onClick={() => handleDeleteJob(currentJob.id)}>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          )}
-          <Tooltip title="Criar nova vaga">
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<AddIcon />}
-              onClick={() => navigate("/recruiter/create-job")}
-              sx={{ flexShrink: 0 }}
-            >
-              Nova Vaga
-            </Button>
-          </Tooltip>
+          <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" rowGap={1}>
+            {currentJob && (
+              <Stack direction="row" spacing={0.5}>
+                <Tooltip title="Editar vaga">
+                  <IconButton size="small" onClick={() => navigate(`/recruiter/create-job?edit=${currentJob.id}`)}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={currentJob.status === "paused" ? "Reabrir vaga" : "Pausar vaga"}>
+                  <IconButton size="small" onClick={() => handleToggleJobStatus(currentJob.id, currentJob.status)}>
+                    {currentJob.status === "paused" ? <PlayArrowIcon fontSize="small" /> : <PauseIcon fontSize="small" />}
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Excluir vaga">
+                  <IconButton size="small" color="error" onClick={() => handleDeleteJob(currentJob.id)}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            )}
+            <Tooltip title="Criar nova vaga">
+              <Button
+                variant="outlined"
+                color="secondary"
+                startIcon={<AddIcon />}
+                onClick={() => navigate("/recruiter/create-job")}
+                sx={{ flexShrink: 0 }}
+              >
+                Nova Vaga
+              </Button>
+            </Tooltip>
+          </Stack>
         </Stack>
       </Stack>
 
       {/* Metrics */}
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <Grid container spacing={{ xs: 1, sm: 2 }}>
+        <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<GroupsIcon color="primary" />}
             value={String(queue.length)}
             label="Na fila"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<CheckCircleIcon color="success" />}
             value={String(approvedCount)}
             label="Aprovados"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<TimerIcon color="secondary" />}
             value="–"
             label="Tempo médio"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<StarIcon color="primary" />}
             value={currentMatch ? `${currentMatch.score}%` : "–"}

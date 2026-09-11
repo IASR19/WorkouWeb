@@ -73,16 +73,19 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
 
   return (
     <ThemeProvider theme={darkTheme}>
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { background: 'rgba(6,19,39,0.97)', border: '1px solid rgba(34,211,238,0.2)' } }}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { background: 'rgba(6,19,39,0.97)', border: '1px solid rgba(34,211,238,0.2)', color: '#fff' } }}>
       <DialogTitle sx={{ p: 0 }}>
         <Box
           sx={{
+            position: 'relative',
             background: 'linear-gradient(135deg, rgba(91,61,245,0.15), rgba(34,211,238,0.10))',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
-            p: 3,
+            p: { xs: 2, sm: 3 },
+            pr: { xs: 6, sm: 7 },
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'flex-start',
-            gap: 3
+            gap: { xs: 2, sm: 3 }
           }}
         >
           {/* Avatar */}
@@ -93,8 +96,8 @@ export function ResumeModal({ open, onClose, candidate, matchScore, parsedPayloa
             <Avatar
               src={avatar}
               sx={{
-                width: 80,
-                height: 80,
+                width: { xs: 64, sm: 80 },
+                height: { xs: 64, sm: 80 },
                 bgcolor: '#5B3DF5',
                 fontSize: '1.6rem',
                 fontWeight: 900,

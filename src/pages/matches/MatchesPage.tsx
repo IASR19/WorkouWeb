@@ -98,7 +98,7 @@ export function MatchesPage() {
             <Typography variant="body1" color="text.secondary" mb={2}>O interesse é mútuo. A conversa começa agora.</Typography>
           </Box>
           
-          <Card sx={{ border: '1px solid rgba(91,61,245,0.15)', bgcolor: 'rgba(6, 19, 39, 0.4)' }}>
+          <Card sx={{ border: '1px solid rgba(91,61,245,0.15)' }}>
             <CardContent sx={{ p: 0 }}>
               {conversations.length > 0 ? (
                 <List sx={{ p: 0 }}>
@@ -161,8 +161,7 @@ export function MatchesPage() {
               display: 'flex', 
               flexDirection: 'column', 
               justifyContent: 'space-between',
-              border: '1px solid rgba(34,211,238,0.15)',
-              background: 'linear-gradient(180deg, rgba(6, 19, 39, 0.7), rgba(6, 19, 39, 0.95))'
+              border: '1px solid rgba(34,211,238,0.15)'
             }}
           >
             <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.05)', bgcolor: 'rgba(0,0,0,0.1)' }}>
@@ -191,7 +190,7 @@ export function MatchesPage() {
                         p: 2
                       }}
                     >
-                      <Typography variant="body1" fontWeight={700} color={isMine ? '#e0d8ff' : '#d8fffa'}>
+                      <Typography variant="body1" fontWeight={700} color={isMine ? 'primary.main' : 'secondary.main'}>
                         {msg.body}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" display="block" textAlign={isMine ? 'right' : 'left'} mt={0.5}>
@@ -222,7 +221,6 @@ export function MatchesPage() {
                     placeholder="Digite uma mensagem..." 
                     variant="outlined"
                     size="medium"
-                    sx={{ bgcolor: 'rgba(6, 19, 39, 0.5)' }}
                   />
                   <Button 
                     type="submit" 

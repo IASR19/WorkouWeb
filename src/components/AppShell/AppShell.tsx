@@ -122,15 +122,17 @@ export function AppShell() {
         <Container maxWidth="lg">
           <Stack
             direction="row"
+            flexWrap="wrap"
             justifyContent="space-between"
             alignItems="center"
+            rowGap={1}
             py={1.5}
           >
             {/* Logo + role badge */}
             <Stack direction="row" spacing={1.5} alignItems="center">
               <WorkouWordmark size="sm" dark={!isDark} />
-              <Box sx={{ width: "1px", height: 20, bgcolor: "divider" }} />
-              <Stack direction="row" spacing={0.75} alignItems="center">
+              <Box sx={{ width: "1px", height: 20, bgcolor: "divider", display: { xs: "none", sm: "block" } }} />
+              <Stack direction="row" spacing={0.75} alignItems="center" sx={{ display: { xs: "none", sm: "flex" } }}>
                 <Box
                   sx={{
                     width: 6,
@@ -154,7 +156,7 @@ export function AppShell() {
                   direction="row"
                   spacing={0.5}
                   alignItems="center"
-                  sx={{ ml: 1 }}
+                  sx={{ ml: 1, display: { xs: "none", md: "flex" } }}
                 >
                   <Typography
                     variant="body2"
@@ -175,7 +177,7 @@ export function AppShell() {
             </Stack>
 
             {/* Nav */}
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
               {navItems.map((item) => (
                 <Button
                   key={item.path}
@@ -196,17 +198,21 @@ export function AppShell() {
                     color: "text.secondary",
                     fontWeight: 700,
                     borderRadius: 0,
-                    px: 1.5,
+                    px: { xs: 1, sm: 1.5 },
                     py: 0.75,
+                    minWidth: 0,
                     borderBottom: "2px solid transparent",
                     "&.active": {
                       color: isDark ? "#fff" : "text.primary",
                       borderBottomColor: "#22D3EE",
                     },
                     "&:hover": { color: isDark ? "#fff" : "text.primary" },
+                    "& .MuiButton-startIcon": { mr: { xs: 0, sm: 1 } },
                   }}
                 >
-                  {item.label}
+                  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                    {item.label}
+                  </Box>
                 </Button>
               ))}
 
@@ -224,11 +230,15 @@ export function AppShell() {
                       color: "text.secondary",
                       fontWeight: 700,
                       borderRadius: 2,
-                      px: 1.5,
+                      minWidth: 0,
+                      px: { xs: 1, sm: 1.5 },
+                      "& .MuiButton-startIcon": { mr: { xs: 0, sm: 1 } },
                       "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
                     }}
                   >
-                    Trocar perfil
+                    <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                      Trocar perfil
+                    </Box>
                   </Button>
                 </Tooltip>
               )}
@@ -256,9 +266,17 @@ export function AppShell() {
                 startIcon={<LogoutIcon />}
                 size="small"
                 color="error"
-                sx={{ fontWeight: 700, borderRadius: 2 }}
+                sx={{
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  minWidth: 0,
+                  px: { xs: 1, sm: 1.5 },
+                  "& .MuiButton-startIcon": { mr: { xs: 0, sm: 1 } },
+                }}
               >
-                Sair
+                <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                  Sair
+                </Box>
               </Button>
             </Stack>
           </Stack>

@@ -40,6 +40,7 @@ export function DeuMatchModal({ open, onClose, candidateName, jobTitle }: DeuMat
             width: { xs: 320, sm: 440 },
             textAlign: 'center',
             outline: 'none',
+            color: '#fff',
             px: 3,
             py: 5
           }}
