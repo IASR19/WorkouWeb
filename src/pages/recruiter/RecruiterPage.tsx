@@ -38,6 +38,9 @@ import { CardStack } from "../../components/CardStack/CardStack";
 import { DeuMatchModal } from "../../components/DeuMatch/DeuMatchModal";
 import { ResumeModal } from "../../components/ResumeModal/ResumeModal";
 import { darkTheme } from "../../theme/theme";
+import { PageTour } from "../../tutorial/PageTour";
+import { useTutorial } from "../../tutorial/TutorialContext";
+import { buildRecruiterHomeSteps } from "../../tutorial/steps";
 
 function getInitials(name?: string) {
   if (!name) return "P";
@@ -243,6 +246,11 @@ export function RecruiterPage() {
     if (selectedJobId) fetchQueue(selectedJobId);
   }, [selectedJobId]);
 
+  const { requestAutoStart } = useTutorial();
+  useEffect(() => {
+    if (api.getCurrentUser()?.role === "recruiter") requestAutoStart("recruiter");
+  }, []);
+
   const handleToggleJobStatus = async (jobId: string, current: "draft" | "open" | "paused" | "closed") => {
     const next: "open" | "paused" = current === "paused" ? "open" : "paused";
     try {
@@ -380,7 +388,7 @@ export function RecruiterPage() {
         </Box>
         <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" rowGap={1.5}>
           {jobs.length > 0 ? (
-            <FormControl sx={{ minWidth: { xs: "100%", sm: 240 } }}>
+            <FormControl data-tour="job-selector" sx={{ minWidth: { xs: "100%", sm: 240 } }}>
               <InputLabel>Vaga em Triagem</InputLabel>
               <Select
                 value={selectedJobId}
@@ -417,6 +425,7 @@ export function RecruiterPage() {
             )}
             <Tooltip title="Criar nova vaga">
               <Button
+                data-tour="new-job-btn"
                 variant="outlined"
                 color="secondary"
                 startIcon={<AddIcon />}
@@ -431,7 +440,7 @@ export function RecruiterPage() {
       </Stack>
 
       {/* Metrics */}
-      <Grid container spacing={{ xs: 1, sm: 2 }}>
+      <Grid data-tour="metrics" container spacing={{ xs: 1, sm: 2 }}>
         <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<GroupsIcon color="primary" />}
@@ -559,23 +568,26 @@ export function RecruiterPage() {
           <Grid size={{ xs: 12, md: 8 }}>
             {currentMatch ? (
               <Box>
-                <CardStack
-                  items={queue.slice(currentIndex)}
-                  activeIndex={0}
-                  height={340}
-                  swipeDirection={swipeDir}
-                  onSwipeAnimationEnd={handleSwipeAnimationEnd}
-                  renderCard={(match, isActive) => (
-                    <CandidateCard
-                      match={match}
-                      isActive={isActive}
-                      onClick={() => handleCardClick(match)}
-                    />
-                  )}
-                />
+                <Box data-tour="card-stack">
+                  <CardStack
+                    items={queue.slice(currentIndex)}
+                    activeIndex={0}
+                    height={340}
+                    swipeDirection={swipeDir}
+                    onSwipeAnimationEnd={handleSwipeAnimationEnd}
+                    renderCard={(match, isActive) => (
+                      <CandidateCard
+                        match={match}
+                        isActive={isActive}
+                        onClick={() => handleCardClick(match)}
+                      />
+                    )}
+                  />
+                </Box>
 
                 {/* Swipe actions */}
                 <Stack
+                  data-tour="swipe-actions"
                   direction="row"
                   justifyContent="center"
                   spacing={3}
@@ -698,6 +710,13 @@ export function RecruiterPage() {
           parsedPayload={resumeModal.candidate?.parsedPayload ?? {}}
         />
       )}
+
+      <PageTour
+        area="recruiter"
+        segment={0}
+        steps={buildRecruiterHomeSteps({ hasJobs: jobs.length > 0, hasQueue: !!currentMatch })}
+        nextRoute="/matches"
+      />
     </Stack>
   );
 }

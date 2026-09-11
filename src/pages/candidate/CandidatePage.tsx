@@ -20,6 +20,9 @@ import { CardStack } from '../../components/CardStack/CardStack';
 import { DeuMatchModal } from '../../components/DeuMatch/DeuMatchModal';
 import { ResumeModal } from '../../components/ResumeModal/ResumeModal';
 import { darkTheme } from '../../theme/theme';
+import { PageTour } from '../../tutorial/PageTour';
+import { useTutorial } from '../../tutorial/TutorialContext';
+import { buildCandidateHomeSteps } from '../../tutorial/steps';
 
 function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
   const job = match.job;
@@ -146,6 +149,15 @@ export function CandidatePage() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const { requestAutoStart } = useTutorial();
+  useEffect(() => {
+    if (loading) return;
+    const resumeReady = (profile?.skills?.length ?? 0) > 0 || (profile?.yearsExperience ?? 0) > 0;
+    if (resumeReady && api.getCurrentUser()?.role !== 'recruiter') {
+      requestAutoStart('candidate');
+    }
+  }, [loading, profile]);
 
   const openEdit = () => {
     setEditForm({
@@ -274,7 +286,7 @@ export function CandidatePage() {
     <Grid container spacing={3} alignItems="flex-start">
       {/* Left: profile summary */}
       <Grid size={{ xs: 12, md: 4 }}>
-        <Card sx={{ border: '1px solid rgba(34,211,238,0.15)', position: 'sticky', top: 80 }}>
+        <Card data-tour="candidate-profile" sx={{ border: '1px solid rgba(34,211,238,0.15)', position: 'sticky', top: 80 }}>
           <CardContent>
             <Stack spacing={2}>
               <Typography variant="h6" fontWeight={900} color="secondary">
@@ -348,17 +360,19 @@ export function CandidatePage() {
 
           {currentMatch ? (
             <>
-              <CardStack
-                items={queue.slice(currentIndex)}
-                activeIndex={0}
-                height={460}
-                swipeDirection={swipeDir}
-                onSwipeAnimationEnd={handleSwipeAnimationEnd}
-                renderCard={(match, isActive) => <JobCard match={match} isActive={isActive} />}
-              />
+              <Box data-tour="job-stack">
+                <CardStack
+                  items={queue.slice(currentIndex)}
+                  activeIndex={0}
+                  height={460}
+                  swipeDirection={swipeDir}
+                  onSwipeAnimationEnd={handleSwipeAnimationEnd}
+                  renderCard={(match, isActive) => <JobCard match={match} isActive={isActive} />}
+                />
+              </Box>
 
               {/* Swipe actions */}
-              <Stack direction="row" justifyContent="center" spacing={3} mt={3} alignItems="center">
+              <Stack data-tour="swipe-actions" direction="row" justifyContent="center" spacing={3} mt={3} alignItems="center">
                 <Box textAlign="center">
                   <IconButton
                     color="error"
@@ -494,6 +508,13 @@ export function CandidatePage() {
           </Stack>
         </DialogContent>
       </Dialog>
+
+      <PageTour
+        area="candidate"
+        segment={0}
+        steps={buildCandidateHomeSteps({ hasQueue: !!currentMatch })}
+        nextRoute="/matches"
+      />
     </Grid>
   );
 }

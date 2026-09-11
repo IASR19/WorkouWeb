@@ -7,6 +7,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import SchoolIcon from "@mui/icons-material/School";
 import {
   Avatar,
   Badge,
@@ -22,22 +23,24 @@ import { WorkouWordmark } from "../WorkouLogo/WorkouLogo";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppTheme } from "../../context/ThemeContext";
 import { api } from "../../services/api";
+import { useTutorial } from "../../tutorial/TutorialContext";
 
 const RECRUITER_NAV = [
   { label: "Candidatos", path: "/recruiter", icon: <PersonSearchIcon /> },
-  { label: "Matches", path: "/matches", icon: <ForumIcon /> },
+  { label: "Matches", path: "/matches", icon: <ForumIcon />, tour: "nav-matches" },
   { label: "Minha Empresa", path: "/company", icon: <CorporateFareIcon /> },
 ];
 
 const CANDIDATE_NAV = [
   { label: "Vagas", path: "/candidate", icon: <BusinessCenterIcon /> },
-  { label: "Matches", path: "/matches", icon: <ForumIcon /> },
+  { label: "Matches", path: "/matches", icon: <ForumIcon />, tour: "nav-matches" },
 ];
 
 export function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const { mode, toggleMode } = useAppTheme();
+  const { startManually } = useTutorial();
   const [authorized, setAuthorized] = useState(false);
   const [company, setCompany] = useState<any>(null);
   const [newMatchCount, setNewMatchCount] = useState(0);
@@ -182,6 +185,7 @@ export function AppShell() {
                   key={item.path}
                   component={NavLink}
                   to={item.path}
+                  data-tour={item.tour}
                   startIcon={
                     item.path === "/matches" && newMatchCount > 0 ? (
                       <Badge badgeContent={newMatchCount} color="secondary">
@@ -241,6 +245,16 @@ export function AppShell() {
                   </Button>
                 </Tooltip>
               )}
+
+              <Tooltip title="Refazer o tutorial guiado">
+                <IconButton
+                  onClick={() => role && startManually(role as "recruiter" | "candidate")}
+                  size="small"
+                  sx={{ mx: 0.5, color: "text.secondary" }}
+                >
+                  <SchoolIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
 
               <Tooltip title="Meu perfil">
                 <IconButton onClick={() => navigate("/profile")} size="small" sx={{ mx: 0.5 }}>

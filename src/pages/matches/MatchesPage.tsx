@@ -6,6 +6,8 @@ import SendIcon from '@mui/icons-material/Send';
 import { Button, Card, CardContent, Grid, Stack, TextField, Typography, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, Divider, Box } from '@mui/material';
 
 import { api } from '../../services/api';
+import { PageTour } from '../../tutorial/PageTour';
+import { MATCHES_STEPS } from '../../tutorial/steps';
 
 export function MatchesPage() {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -98,7 +100,7 @@ export function MatchesPage() {
             <Typography variant="body1" color="text.secondary" mb={2}>O interesse é mútuo. A conversa começa agora.</Typography>
           </Box>
           
-          <Card sx={{ border: '1px solid rgba(91,61,245,0.15)' }}>
+          <Card data-tour="conversation-list" sx={{ border: '1px solid rgba(91,61,245,0.15)' }}>
             <CardContent sx={{ p: 0 }}>
               {conversations.length > 0 ? (
                 <List sx={{ p: 0 }}>
@@ -153,7 +155,7 @@ export function MatchesPage() {
         </Stack>
       </Grid>
       
-      <Grid size={{ xs: 12, md: 8 }}>
+      <Grid data-tour="chat-area" size={{ xs: 12, md: 8 }}>
         {activeConv ? (
           <Card 
             sx={{ 
@@ -247,6 +249,9 @@ export function MatchesPage() {
           </Card>
         )}
       </Grid>
+
+      <PageTour area="recruiter" segment={1} steps={MATCHES_STEPS} />
+      <PageTour area="candidate" segment={1} steps={MATCHES_STEPS} />
     </Grid>
   );
 }
