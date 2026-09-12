@@ -71,7 +71,6 @@ function CandidateCard({
     <Box
       onClick={isActive ? onClick : undefined}
       sx={{
-        position: "relative",
         height: "100%",
         color: "#fff",
         background:
@@ -89,9 +88,7 @@ function CandidateCard({
           label="Exemplo do tour"
           size="small"
           sx={{
-            position: "absolute",
-            top: 12,
-            left: 12,
+            alignSelf: "flex-start",
             bgcolor: "#ffc107",
             color: "#0B1220",
             fontWeight: 900,

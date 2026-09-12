@@ -8,7 +8,7 @@ import { Button, Card, CardContent, Chip, Grid, Stack, TextField, Typography, Li
 import { api } from '../../services/api';
 import { PageTour } from '../../tutorial/PageTour';
 import { useTutorial } from '../../tutorial/TutorialContext';
-import { MATCHES_STEPS } from '../../tutorial/steps';
+import { MATCHES_STEPS, RECRUITER_MATCHES_STEPS } from '../../tutorial/steps';
 import { DEMO_CONVERSATION, DEMO_MESSAGES } from '../../tutorial/demoData';
 
 export function MatchesPage() {
@@ -284,7 +284,7 @@ export function MatchesPage() {
         )}
       </Grid>
 
-      <PageTour area="recruiter" segment={1} steps={MATCHES_STEPS} />
+      <PageTour area="recruiter" segment={1} steps={RECRUITER_MATCHES_STEPS} nextRoute="/company" />
       <PageTour area="candidate" segment={1} steps={MATCHES_STEPS} />
     </Grid>
   );

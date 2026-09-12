@@ -29,6 +29,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { api } from "../../services/api";
+import { PageTour } from "../../tutorial/PageTour";
+import { COMPANY_HOME_STEPS } from "../../tutorial/steps";
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   essencial: { label: "Essencial", color: "#5B3DF5" },
@@ -198,6 +200,7 @@ export function CompanyDashboard() {
     <Box maxWidth={960} mx="auto">
       {/* Header */}
       <Stack
+        data-tour="company-header"
         direction={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
         alignItems={{ xs: "stretch", sm: "flex-start" }}
@@ -256,7 +259,7 @@ export function CompanyDashboard() {
       </Stack>
 
       {/* Quick stats */}
-      <Grid container spacing={2} mb={3}>
+      <Grid data-tour="company-metrics" container spacing={2} mb={3}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ border: "1px solid rgba(91,61,245,0.15)" }}>
             <CardContent sx={{ p: 2 }}>
@@ -311,7 +314,7 @@ export function CompanyDashboard() {
       </Grid>
 
       {/* Tabs */}
-      <Stack direction="row" spacing={1} mb={3} flexWrap="wrap" rowGap={1}>
+      <Stack data-tour="company-tabs" direction="row" spacing={1} mb={3} flexWrap="wrap" rowGap={1}>
         <Box sx={tabStyle("overview")} onClick={() => setTab("overview")}>
           Visão geral
         </Box>
@@ -377,6 +380,7 @@ export function CompanyDashboard() {
                   )}
                   <Divider />
                   <Button
+                    data-tour="company-upgrade"
                     variant="contained"
                     fullWidth
                     onClick={() => navigate("/plans")}
@@ -764,6 +768,8 @@ export function CompanyDashboard() {
           )}
         </Box>
       )}
+
+      <PageTour area="recruiter" segment={2} steps={COMPANY_HOME_STEPS} />
     </Box>
   );
 }

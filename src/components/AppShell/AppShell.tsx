@@ -28,7 +28,7 @@ import { useTutorial } from "../../tutorial/TutorialContext";
 const RECRUITER_NAV = [
   { label: "Candidatos", path: "/recruiter", icon: <PersonSearchIcon /> },
   { label: "Matches", path: "/matches", icon: <ForumIcon />, tour: "nav-matches" },
-  { label: "Minha Empresa", path: "/company", icon: <CorporateFareIcon /> },
+  { label: "Minha Empresa", path: "/company", icon: <CorporateFareIcon />, tour: "nav-company" },
 ];
 
 const CANDIDATE_NAV = [

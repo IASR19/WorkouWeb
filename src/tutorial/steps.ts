@@ -21,7 +21,7 @@ export const RECRUITER_HOME_STEPS: Step[] = [
     target: '[data-tour="card-stack"]',
     title: 'Perfil do candidato',
     content: 'Veja o resumo do candidato aqui. Clique no card pra abrir o currículo completo.',
-    placement: 'left'
+    placement: 'top'
   },
   {
     target: '[data-tour="swipe-actions"]',
@@ -82,5 +82,43 @@ export const MATCHES_STEPS: Step[] = [
     title: 'Chat',
     content: 'Selecione uma conversa pra trocar mensagens direto com quem deu match.',
     placement: 'left'
+  }
+];
+
+// Só pro recrutador: depois de ver os matches, o tour continua pra área da empresa.
+export const RECRUITER_MATCHES_STEPS: Step[] = [
+  ...MATCHES_STEPS,
+  {
+    target: '[data-tour="nav-company"]',
+    title: 'Sua empresa',
+    content: 'Clique aqui pra ver o plano, gerenciar seu time de RH e o histórico de cobranças.',
+    placement: 'bottom'
+  }
+];
+
+export const COMPANY_HOME_STEPS: Step[] = [
+  {
+    target: '[data-tour="company-header"]',
+    title: 'Sua empresa',
+    content: 'Aqui ficam o nome da empresa e o plano atual da assinatura.',
+    placement: 'bottom'
+  },
+  {
+    target: '[data-tour="company-metrics"]',
+    title: 'Resumo rápido',
+    content: 'Gestores de RH, vagas disponíveis este mês e cobranças realizadas, tudo num só lugar.',
+    placement: 'bottom'
+  },
+  {
+    target: '[data-tour="company-tabs"]',
+    title: 'Navegue pela empresa',
+    content: 'Alterne entre visão geral, gestores de RH e histórico de cobranças por aqui.',
+    placement: 'bottom'
+  },
+  {
+    target: '[data-tour="company-upgrade"]',
+    title: 'Mudar de plano',
+    content: 'Precisando de mais vagas ou de mais gente no time, o upgrade começa aqui.',
+    placement: 'top'
   }
 ];
