@@ -3,11 +3,13 @@ import ForumIcon from '@mui/icons-material/Forum';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
-import { Button, Card, CardContent, Grid, Stack, TextField, Typography, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, Divider, Box } from '@mui/material';
+import { Button, Card, CardContent, Chip, Grid, Stack, TextField, Typography, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, Divider, Box } from '@mui/material';
 
 import { api } from '../../services/api';
 import { PageTour } from '../../tutorial/PageTour';
+import { useTutorial } from '../../tutorial/TutorialContext';
 import { MATCHES_STEPS } from '../../tutorial/steps';
+import { DEMO_CONVERSATION, DEMO_MESSAGES } from '../../tutorial/demoData';
 
 export function MatchesPage() {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -17,6 +19,7 @@ export function MatchesPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { state: tutorialState } = useTutorial();
 
   const fetchConversations = async (selectFirst = false) => {
     try {
@@ -50,15 +53,29 @@ export function MatchesPage() {
 
   // Poll for messages in the active conversation
   useEffect(() => {
-    if (!activeConv) return;
+    if (!activeConv || activeConv.id === DEMO_CONVERSATION.id) return;
     fetchMessages(activeConv.id);
-    
+
     const interval = setInterval(() => {
       fetchMessages(activeConv.id);
     }, 3000);
 
     return () => clearInterval(interval);
   }, [activeConv]);
+
+  const isTourStepActive = tutorialState.running && tutorialState.segment === 1;
+  const isDemoingConversations = isTourStepActive && conversations.length === 0;
+
+  // Mostra uma conversa de exemplo, estática, enquanto o tour roda sem nenhum match real ainda.
+  useEffect(() => {
+    if (isDemoingConversations) {
+      setActiveConv(DEMO_CONVERSATION);
+      setMessages(DEMO_MESSAGES);
+    } else if (activeConv?.id === DEMO_CONVERSATION.id) {
+      setActiveConv(null);
+      setMessages([]);
+    }
+  }, [isDemoingConversations]);
 
   // Scroll to bottom when messages list changes
   useEffect(() => {
@@ -67,7 +84,7 @@ export function MatchesPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!typedMessage.trim() || !activeConv) return;
+    if (!typedMessage.trim() || !activeConv || activeConv.id === DEMO_CONVERSATION.id) return;
     const body = typedMessage;
     setTypedMessage('');
 
@@ -88,6 +105,8 @@ export function MatchesPage() {
   }
 
   const isRecruiter = currentUser?.role === 'recruiter';
+  const displayConversations = isDemoingConversations ? [DEMO_CONVERSATION] : conversations;
+  const isDemoActive = activeConv?.id === DEMO_CONVERSATION.id;
 
   return (
     <Grid container spacing={3}>
@@ -102,10 +121,11 @@ export function MatchesPage() {
           
           <Card data-tour="conversation-list" sx={{ border: '1px solid rgba(91,61,245,0.15)' }}>
             <CardContent sx={{ p: 0 }}>
-              {conversations.length > 0 ? (
+              {displayConversations.length > 0 ? (
                 <List sx={{ p: 0 }}>
-                  {conversations.map((conv, index) => {
+                  {displayConversations.map((conv, index) => {
                     const isSelected = activeConv?.id === conv.id;
+                    const isConvDemo = conv.id === DEMO_CONVERSATION.id;
                     const candidateName = conv.match?.candidate?.user?.name || 'Candidato';
                     const jobTitle = conv.match?.job?.title || 'Vaga';
                     const companyName = conv.match?.job?.company?.name || 'Empresa';
@@ -132,9 +152,16 @@ export function MatchesPage() {
                                 <PersonIcon />
                               </Avatar>
                             </ListItemAvatar>
-                            <ListItemText 
-                              primary={title} 
-                              primaryTypographyProps={{ fontWeight: 800 }}
+                            <ListItemText
+                              primary={
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                  <span>{title}</span>
+                                  {isConvDemo && (
+                                    <Chip label="Exemplo" size="small" sx={{ bgcolor: '#ffc107', color: '#0B1220', fontWeight: 900, fontSize: '0.6rem', height: 18 }} />
+                                  )}
+                                </Stack>
+                              }
+                              primaryTypographyProps={{ fontWeight: 800, component: 'div' }}
                               secondary={subtitle}
                             />
                           </ListItemButton>
@@ -167,9 +194,14 @@ export function MatchesPage() {
             }}
           >
             <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.05)', bgcolor: 'rgba(0,0,0,0.1)' }}>
-              <Typography variant="h5" fontWeight={900}>
-                {isRecruiter ? activeConv.match?.candidate?.user?.name : activeConv.match?.job?.company?.name}
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="h5" fontWeight={900}>
+                  {isRecruiter ? activeConv.match?.candidate?.user?.name : activeConv.match?.job?.company?.name}
+                </Typography>
+                {isDemoActive && (
+                  <Chip label="Exemplo do tour" size="small" sx={{ bgcolor: '#ffc107', color: '#0B1220', fontWeight: 900, fontSize: '0.65rem' }} />
+                )}
+              </Stack>
               <Typography variant="body2" color="text.secondary">
                 Vaga: {activeConv.match?.job?.title} ({activeConv.match?.score}% match)
               </Typography>
@@ -216,19 +248,21 @@ export function MatchesPage() {
             <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.05)', bgcolor: 'rgba(0,0,0,0.1)' }}>
               <form onSubmit={handleSendMessage}>
                 <Stack direction="row" spacing={2}>
-                  <TextField 
-                    fullWidth 
+                  <TextField
+                    fullWidth
                     value={typedMessage}
                     onChange={(e) => setTypedMessage(e.target.value)}
-                    placeholder="Digite uma mensagem..." 
+                    placeholder={isDemoActive ? 'Prévia do tour — sem envio real' : 'Digite uma mensagem...'}
                     variant="outlined"
                     size="medium"
+                    disabled={isDemoActive}
                   />
-                  <Button 
-                    type="submit" 
-                    variant="contained" 
+                  <Button
+                    type="submit"
+                    variant="contained"
                     color="secondary"
                     endIcon={<SendIcon />}
+                    disabled={isDemoActive}
                     sx={{
                       background: 'linear-gradient(135deg, #5B3DF5, #22D3EE)',
                       px: 3,

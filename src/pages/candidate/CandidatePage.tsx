@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -22,12 +22,14 @@ import { ResumeModal } from '../../components/ResumeModal/ResumeModal';
 import { darkTheme } from '../../theme/theme';
 import { PageTour } from '../../tutorial/PageTour';
 import { useTutorial } from '../../tutorial/TutorialContext';
-import { buildCandidateHomeSteps } from '../../tutorial/steps';
+import { CANDIDATE_HOME_STEPS } from '../../tutorial/steps';
+import { DEMO_CANDIDATE_MATCH } from '../../tutorial/demoData';
 
 function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
   const job = match.job;
   const score = match.score;
   const isFeatured = score >= 90;
+  const isDemo = match.id === DEMO_CANDIDATE_MATCH.id;
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -44,7 +46,10 @@ function JobCard({ match, isActive }: { match: any; isActive: boolean }) {
     >
       {/* Top row */}
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center">
+          {isDemo && (
+            <Chip label="Exemplo do tour" size="small" sx={{ bgcolor: '#ffc107', color: '#0B1220', fontWeight: 900, fontSize: '0.65rem' }} />
+          )}
           {isFeatured && (
             <Chip label="Destaque" size="small" sx={{ bgcolor: 'rgba(255,193,7,0.15)', color: '#ffc107', fontWeight: 800, fontSize: '0.7rem' }} />
           )}
@@ -150,7 +155,7 @@ export function CandidatePage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const { requestAutoStart } = useTutorial();
+  const { requestAutoStart, state: tutorialState } = useTutorial();
   useEffect(() => {
     if (loading) return;
     const resumeReady = (profile?.skills?.length ?? 0) > 0 || (profile?.yearsExperience ?? 0) > 0;
@@ -159,8 +164,8 @@ export function CandidatePage() {
     }
   }, [loading, profile]);
 
-  const hasQueue = currentIndex < queue.length;
-  const tourSteps = useMemo(() => buildCandidateHomeSteps({ hasQueue }), [hasQueue]);
+  const isTourStepActive = tutorialState.running && tutorialState.activeArea === 'candidate' && tutorialState.segment === 0;
+  const isDemoingQueue = isTourStepActive && currentIndex >= queue.length;
 
   const openEdit = () => {
     setEditForm({
@@ -284,6 +289,7 @@ export function CandidatePage() {
   };
 
   const currentMatch = currentIndex < queue.length ? queue[currentIndex] : null;
+  const displayMatch = isDemoingQueue ? DEMO_CANDIDATE_MATCH : currentMatch;
 
   return (
     <Grid container spacing={3} alignItems="flex-start">
@@ -361,11 +367,11 @@ export function CandidatePage() {
           </Typography>
           <Typography color="text.secondary" variant="body2" mb={3}>Vagas relevantes e aplicação em um deslize.</Typography>
 
-          {currentMatch ? (
+          {displayMatch ? (
             <>
               <Box data-tour="job-stack">
                 <CardStack
-                  items={queue.slice(currentIndex)}
+                  items={isDemoingQueue ? [DEMO_CANDIDATE_MATCH] : queue.slice(currentIndex)}
                   activeIndex={0}
                   height={460}
                   swipeDirection={swipeDir}
@@ -380,7 +386,7 @@ export function CandidatePage() {
                   <IconButton
                     color="error"
                     onClick={() => handleSwipe('skipped')}
-                    disabled={!!swipeDir}
+                    disabled={!!swipeDir || isDemoingQueue}
                     sx={{ width: 72, height: 72, border: '2px solid', borderColor: 'error.main', boxShadow: '0 0 20px rgba(255,93,115,0.2)', transition: 'transform 0.1s', '&:hover': { boxShadow: '0 0 30px rgba(255,93,115,0.4)', transform: 'scale(1.08)' } }}
                   >
                     <CloseIcon sx={{ fontSize: 32 }} />
@@ -392,7 +398,7 @@ export function CandidatePage() {
                   <IconButton
                     color="primary"
                     onClick={handleUndo}
-                    disabled={!lastAction || !!swipeDir}
+                    disabled={!lastAction || !!swipeDir || isDemoingQueue}
                     sx={{ width: 56, height: 56, border: '2px solid', borderColor: lastAction ? 'primary.main' : 'action.disabled' }}
                   >
                     <RestartAltIcon sx={{ fontSize: 24 }} />
@@ -404,7 +410,7 @@ export function CandidatePage() {
                   <IconButton
                     color="success"
                     onClick={() => handleSwipe('approved')}
-                    disabled={!!swipeDir}
+                    disabled={!!swipeDir || isDemoingQueue}
                     sx={{ width: 72, height: 72, border: '2px solid', borderColor: 'success.main', boxShadow: '0 0 20px rgba(16,217,155,0.2)', transition: 'transform 0.1s', '&:hover': { boxShadow: '0 0 30px rgba(16,217,155,0.4)', transform: 'scale(1.08)' } }}
                   >
                     <CheckCircleIcon sx={{ fontSize: 32 }} />
@@ -414,7 +420,7 @@ export function CandidatePage() {
               </Stack>
 
               <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1}>
-                {queue.length - currentIndex} vagas restantes
+                {isDemoingQueue ? 'Exemplo — vagas reais compatíveis aparecem aqui' : `${queue.length - currentIndex} vagas restantes`}
               </Typography>
             </>
           ) : (
@@ -515,7 +521,7 @@ export function CandidatePage() {
       <PageTour
         area="candidate"
         segment={0}
-        steps={tourSteps}
+        steps={CANDIDATE_HOME_STEPS}
         nextRoute="/matches"
       />
     </Grid>

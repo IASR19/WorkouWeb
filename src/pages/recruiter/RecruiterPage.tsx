@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
@@ -40,7 +40,8 @@ import { ResumeModal } from "../../components/ResumeModal/ResumeModal";
 import { darkTheme } from "../../theme/theme";
 import { PageTour } from "../../tutorial/PageTour";
 import { useTutorial } from "../../tutorial/TutorialContext";
-import { buildRecruiterHomeSteps } from "../../tutorial/steps";
+import { RECRUITER_HOME_STEPS } from "../../tutorial/steps";
+import { DEMO_JOB, DEMO_RECRUITER_MATCH } from "../../tutorial/demoData";
 
 function getInitials(name?: string) {
   if (!name) return "P";
@@ -63,12 +64,14 @@ function CandidateCard({
 }) {
   const candidate = match.candidate;
   const score = match.score;
+  const isDemo = match.id === DEMO_RECRUITER_MATCH.id;
 
   return (
     <ThemeProvider theme={darkTheme}>
     <Box
       onClick={isActive ? onClick : undefined}
       sx={{
+        position: "relative",
         height: "100%",
         color: "#fff",
         background:
@@ -81,6 +84,21 @@ function CandidateCard({
         userSelect: "none",
       }}
     >
+      {isDemo && (
+        <Chip
+          label="Exemplo do tour"
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+            bgcolor: "#ffc107",
+            color: "#0B1220",
+            fontWeight: 900,
+            fontSize: "0.65rem",
+          }}
+        />
+      )}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -246,17 +264,14 @@ export function RecruiterPage() {
     if (selectedJobId) fetchQueue(selectedJobId);
   }, [selectedJobId]);
 
-  const { requestAutoStart } = useTutorial();
+  const { requestAutoStart, state: tutorialState } = useTutorial();
   useEffect(() => {
     if (api.getCurrentUser()?.role === "recruiter") requestAutoStart("recruiter");
   }, []);
 
-  const hasJobs = jobs.length > 0;
-  const hasQueue = currentIndex < queue.length;
-  const tourSteps = useMemo(
-    () => buildRecruiterHomeSteps({ hasJobs, hasQueue }),
-    [hasJobs, hasQueue]
-  );
+  const isTourStepActive = tutorialState.running && tutorialState.activeArea === "recruiter" && tutorialState.segment === 0;
+  const isDemoingJobs = isTourStepActive && jobs.length === 0;
+  const isDemoingQueue = isTourStepActive && currentIndex >= queue.length;
 
   const handleToggleJobStatus = async (jobId: string, current: "draft" | "open" | "paused" | "closed") => {
     const next: "open" | "paused" = current === "paused" ? "open" : "paused";
@@ -366,6 +381,10 @@ export function RecruiterPage() {
   const currentMatch = currentIndex < queue.length ? queue[currentIndex] : null;
   const currentJob = jobs.find((j) => j.id === selectedJobId);
 
+  const displayJobs = isDemoingJobs ? [DEMO_JOB] : jobs;
+  const displayCurrentJob = isDemoingJobs ? DEMO_JOB : currentJob;
+  const displayMatch = isDemoingQueue ? DEMO_RECRUITER_MATCH : currentMatch;
+
   if (loading) {
     return (
       <Box display="grid" sx={{ placeItems: "center", minHeight: "60vh" }}>
@@ -394,15 +413,15 @@ export function RecruiterPage() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" rowGap={1.5}>
-          {jobs.length > 0 ? (
+          {displayJobs.length > 0 ? (
             <FormControl data-tour="job-selector" sx={{ minWidth: { xs: "100%", sm: 240 } }}>
               <InputLabel>Vaga em Triagem</InputLabel>
               <Select
-                value={selectedJobId}
+                value={isDemoingJobs ? DEMO_JOB.id : selectedJobId}
                 label="Vaga em Triagem"
                 onChange={(e) => setSelectedJobId(e.target.value)}
               >
-                {jobs.map((j) => (
+                {displayJobs.map((j) => (
                   <MenuItem key={j.id} value={j.id}>
                     {j.title}
                   </MenuItem>
@@ -451,7 +470,7 @@ export function RecruiterPage() {
         <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<GroupsIcon color="primary" />}
-            value={String(queue.length)}
+            value={isDemoingQueue ? "1" : String(queue.length)}
             label="Na fila"
           />
         </Grid>
@@ -472,14 +491,14 @@ export function RecruiterPage() {
         <Grid size={{ xs: 3 }}>
           <MetricCard
             icon={<StarIcon color="primary" />}
-            value={currentMatch ? `${currentMatch.score}%` : "–"}
+            value={displayMatch ? `${displayMatch.score}%` : "–"}
             label="Match atual"
           />
         </Grid>
       </Grid>
 
       {/* Main content */}
-      {jobs.length === 0 ? (
+      {displayJobs.length === 0 ? (
         <Card
           sx={{
             p: 6,
@@ -525,12 +544,12 @@ export function RecruiterPage() {
             >
               <CardContent>
                 <Typography variant="h6" fontWeight={800} mb={0.5}>
-                  {currentJob?.title}
+                  {displayCurrentJob?.title}
                 </Typography>
                 <Typography color="text.secondary" variant="body2" mb={2}>
-                  {currentJob?.company?.name ?? "Sua empresa"}
+                  {displayCurrentJob?.company?.name ?? "Sua empresa"}
                 </Typography>
-                {currentJob?.requiredSkills?.length > 0 && (
+                {displayCurrentJob?.requiredSkills?.length > 0 && (
                   <Stack
                     direction="row"
                     spacing={0.5}
@@ -538,7 +557,7 @@ export function RecruiterPage() {
                     gap={0.5}
                     mb={2}
                   >
-                    {currentJob.requiredSkills.map((s: string) => (
+                    {displayCurrentJob.requiredSkills.map((s: string) => (
                       <Chip
                         key={s}
                         label={s}
@@ -552,17 +571,17 @@ export function RecruiterPage() {
                   </Stack>
                 )}
                 <Stack spacing={1}>
-                  {currentJob?.workModel && (
+                  {displayCurrentJob?.workModel && (
                     <Typography variant="body2" color="text.secondary">
-                      Modelo: <strong>{currentJob.workModel}</strong>
+                      Modelo: <strong>{displayCurrentJob.workModel}</strong>
                     </Typography>
                   )}
-                  {currentJob?.salaryMin && (
+                  {displayCurrentJob?.salaryMin && (
                     <Typography variant="body2" color="text.secondary">
                       Salário:{" "}
                       <strong>
-                        R$ {currentJob.salaryMin.toLocaleString("pt-BR")} – R${" "}
-                        {currentJob.salaryMax?.toLocaleString("pt-BR")}
+                        R$ {displayCurrentJob.salaryMin.toLocaleString("pt-BR")} – R${" "}
+                        {displayCurrentJob.salaryMax?.toLocaleString("pt-BR")}
                       </strong>
                     </Typography>
                   )}
@@ -573,11 +592,11 @@ export function RecruiterPage() {
 
           {/* Card stack */}
           <Grid size={{ xs: 12, md: 8 }}>
-            {currentMatch ? (
+            {displayMatch ? (
               <Box>
                 <Box data-tour="card-stack">
                   <CardStack
-                    items={queue.slice(currentIndex)}
+                    items={isDemoingQueue ? [DEMO_RECRUITER_MATCH] : queue.slice(currentIndex)}
                     activeIndex={0}
                     height={340}
                     swipeDirection={swipeDir}
@@ -603,7 +622,7 @@ export function RecruiterPage() {
                   <IconButton
                     color="error"
                     onClick={() => handleSwipe("skipped")}
-                    disabled={!!swipeDir}
+                    disabled={!!swipeDir || isDemoingQueue}
                     sx={{
                       width: 72,
                       height: 72,
@@ -623,7 +642,7 @@ export function RecruiterPage() {
                   <IconButton
                     color="primary"
                     onClick={handleUndo}
-                    disabled={!lastAction || !!swipeDir}
+                    disabled={!lastAction || !!swipeDir || isDemoingQueue}
                     sx={{
                       width: 56,
                       height: 56,
@@ -639,7 +658,7 @@ export function RecruiterPage() {
                   <IconButton
                     color="success"
                     onClick={() => handleSwipe("approved")}
-                    disabled={!!swipeDir}
+                    disabled={!!swipeDir || isDemoingQueue}
                     sx={{
                       width: 72,
                       height: 72,
@@ -664,7 +683,9 @@ export function RecruiterPage() {
                   textAlign="center"
                   mt={1}
                 >
-                  {queue.length - currentIndex} candidatos restantes
+                  {isDemoingQueue
+                    ? "Exemplo — candidatos reais aparecem aqui assim que se candidatarem"
+                    : `${queue.length - currentIndex} candidatos restantes`}
                 </Typography>
               </Box>
             ) : (
@@ -721,7 +742,7 @@ export function RecruiterPage() {
       <PageTour
         area="recruiter"
         segment={0}
-        steps={tourSteps}
+        steps={RECRUITER_HOME_STEPS}
         nextRoute="/matches"
       />
     </Stack>
