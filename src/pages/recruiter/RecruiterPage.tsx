@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
@@ -250,6 +250,13 @@ export function RecruiterPage() {
   useEffect(() => {
     if (api.getCurrentUser()?.role === "recruiter") requestAutoStart("recruiter");
   }, []);
+
+  const hasJobs = jobs.length > 0;
+  const hasQueue = currentIndex < queue.length;
+  const tourSteps = useMemo(
+    () => buildRecruiterHomeSteps({ hasJobs, hasQueue }),
+    [hasJobs, hasQueue]
+  );
 
   const handleToggleJobStatus = async (jobId: string, current: "draft" | "open" | "paused" | "closed") => {
     const next: "open" | "paused" = current === "paused" ? "open" : "paused";
@@ -714,7 +721,7 @@ export function RecruiterPage() {
       <PageTour
         area="recruiter"
         segment={0}
-        steps={buildRecruiterHomeSteps({ hasJobs: jobs.length > 0, hasQueue: !!currentMatch })}
+        steps={tourSteps}
         nextRoute="/matches"
       />
     </Stack>

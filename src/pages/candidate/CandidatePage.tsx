@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -158,6 +158,9 @@ export function CandidatePage() {
       requestAutoStart('candidate');
     }
   }, [loading, profile]);
+
+  const hasQueue = currentIndex < queue.length;
+  const tourSteps = useMemo(() => buildCandidateHomeSteps({ hasQueue }), [hasQueue]);
 
   const openEdit = () => {
     setEditForm({
@@ -512,7 +515,7 @@ export function CandidatePage() {
       <PageTour
         area="candidate"
         segment={0}
-        steps={buildCandidateHomeSteps({ hasQueue: !!currentMatch })}
+        steps={tourSteps}
         nextRoute="/matches"
       />
     </Grid>

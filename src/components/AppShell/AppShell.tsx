@@ -248,7 +248,23 @@ export function AppShell() {
 
               <Tooltip title="Refazer o tutorial guiado">
                 <IconButton
-                  onClick={() => role && startManually(role as "recruiter" | "candidate")}
+                  onClick={async () => {
+                    if (!role) return;
+                    if (role === "candidate") {
+                      try {
+                        const profile = await api.getCandidateMe();
+                        const hasResume = (profile?.skills?.length ?? 0) > 0 || (profile?.yearsExperience ?? 0) > 0;
+                        if (!hasResume) {
+                          navigate("/candidate/onboarding");
+                          return;
+                        }
+                      } catch {
+                        navigate("/candidate/onboarding");
+                        return;
+                      }
+                    }
+                    startManually(role as "recruiter" | "candidate");
+                  }}
                   size="small"
                   sx={{ mx: 0.5, color: "text.secondary" }}
                 >
