@@ -1,7 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 
 import { AppShell } from './components/AppShell/AppShell';
+import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { TutorialProvider } from './tutorial/TutorialContext';
+import { AppEntryPage } from './pages/appEntry/AppEntryPage';
 import { CandidatePage } from './pages/candidate/CandidatePage';
 import { OnboardingPage } from './pages/candidate/OnboardingPage';
 import { CompanyDashboard } from './pages/company/CompanyDashboard';
@@ -20,6 +22,7 @@ export function App() {
     <TutorialProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<AppEntryPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/recruiter/create-job" element={<CreateJobPage />} />
@@ -34,6 +37,7 @@ export function App() {
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <InstallPrompt />
     </TutorialProvider>
   );
 }
